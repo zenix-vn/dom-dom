@@ -12,18 +12,29 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selection) {
-            Tab("Trang chủ", systemImage: "house.fill", value: 0) {
-                HomeView()
-            }
-            Tab("Môn học", systemImage: "square.grid.2x2.fill", value: 1) {
-                SubjectsTab()
-            }
-            Tab("Xếp hạng", systemImage: "chart.bar.fill", value: 2) {
-                LeaderboardView()
-            }
-            Tab("Hồ sơ", systemImage: "person.crop.circle.fill", value: 3) {
-                ProfileView()
-            }
+            HomeView()
+                .tabItem {
+                    Label("Trang chủ", systemImage: "house.fill")
+                }
+                .tag(0)
+
+            SubjectsTab()
+                .tabItem {
+                    Label("Môn học", systemImage: "square.grid.2x2.fill")
+                }
+                .tag(1)
+
+            LeaderboardView()
+                .tabItem {
+                    Label("Xếp hạng", systemImage: "chart.bar.fill")
+                }
+                .tag(2)
+
+            ProfileView()
+                .tabItem {
+                    Label("Hồ sơ", systemImage: "person.crop.circle.fill")
+                }
+                .tag(3)
         }
         .tint(Palette.lacquer)
     }

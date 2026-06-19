@@ -58,8 +58,7 @@ struct FeedbackSheet: View {
                         .font(.system(size: 16, weight: .bold))
                         .frame(maxWidth: .infinity).frame(height: 54)
                 }
-                .buttonStyle(.glassProminent)
-                .tint(accent)
+                .buttonStyle(.glassProminent(accent))
                 .padding(.top, 14)
             }
             .padding(.horizontal, 20)

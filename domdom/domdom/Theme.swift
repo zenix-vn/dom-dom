@@ -124,8 +124,24 @@ extension SubjectKind {
 
     var gradient: LinearGradient {
         let c = tint
+        let mixColor: Color
+        if #available(iOS 18.0, *) {
+            mixColor = c.mix(with: .black, by: 0.18)
+        } else {
+            #if canImport(UIKit)
+            let uiColor = UIColor(c)
+            var r: CGFloat = 0; var g: CGFloat = 0; var b: CGFloat = 0; var a: CGFloat = 0
+            if uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) {
+                mixColor = Color(.sRGB, red: Double(r * 0.82), green: Double(g * 0.82), blue: Double(b * 0.82), opacity: Double(a))
+            } else {
+                mixColor = c
+            }
+            #else
+            mixColor = c
+            #endif
+        }
         return LinearGradient(
-            colors: [c.opacity(0.92), c.mix(with: .black, by: 0.18).opacity(0.85)],
+            colors: [c.opacity(0.92), mixColor.opacity(0.85)],
             startPoint: .topLeading, endPoint: .bottomTrailing
         )
     }
@@ -140,3 +156,143 @@ let goldGradient = LinearGradient(
     colors: [Color(hex: 0xF4C24B), Color(hex: 0xE7A12E)],
     startPoint: .leading, endPoint: .trailing
 )
+
+struct Glass {
+    let isClear: Bool
+    let tintColor: Color?
+    
+    static let regular = Glass(isClear: false, tintColor: nil)
+    static let clear = Glass(isClear: true, tintColor: nil)
+    
+    func tint(_ color: Color) -> Glass {
+        Glass(isClear: isClear, tintColor: color)
+    }
+    
+    func interactive() -> Glass {
+        self
+    }
+}
+
+extension View {
+    func glassEffect(_ glass: Glass, in shape: some InsettableShape) -> some View {
+        self
+            .background(glass.isClear ? AnyShapeStyle(Color.clear) : AnyShapeStyle(.regularMaterial), in: shape)
+            .background(
+                Group {
+                    if let tintColor = glass.tintColor {
+                        shape.fill(tintColor)
+                    }
+                }
+            )
+            .overlay {
+                if !glass.isClear {
+                    shape
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(0.35),
+                                    .white.opacity(0.1),
+                                    .black.opacity(0.05),
+                                    .white.opacity(0.15)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.2
+                        )
+                }
+            }
+            .shadow(color: glass.isClear ? .clear : .black.opacity(0.04), radius: 8, x: 0, y: 4)
+    }
+
+    func glassEffect(_ glass: Glass, in shape: some Shape) -> some View {
+        self
+            .background(glass.isClear ? AnyShapeStyle(Color.clear) : AnyShapeStyle(.regularMaterial), in: shape)
+            .background(
+                Group {
+                    if let tintColor = glass.tintColor {
+                        shape.fill(tintColor)
+                    }
+                }
+            )
+            .overlay {
+                if !glass.isClear {
+                    shape
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    .white.opacity(0.35),
+                                    .white.opacity(0.1),
+                                    .black.opacity(0.05),
+                                    .white.opacity(0.15)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 1.2
+                        )
+                }
+            }
+            .shadow(color: glass.isClear ? .clear : .black.opacity(0.04), radius: 8, x: 0, y: 4)
+    }
+}
+
+struct GlassProminentButtonStyle: ButtonStyle {
+    let tintColor: Color
+    
+    init(tintColor: Color = Palette.lacquer) {
+        self.tintColor = tintColor
+    }
+    
+    func makeBody(configuration: Configuration) -> some View {
+        let baseColor = tintColor
+        configuration.label
+            .font(.system(size: 16, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(baseColor.opacity(0.85))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(LinearGradient(
+                                colors: [.white.opacity(0.15), .clear],
+                                startPoint: .top, endPoint: .bottom
+                            ))
+                    )
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(.white.opacity(0.2), lineWidth: 1.2)
+            }
+            .shadow(color: baseColor.opacity(0.3), radius: 10, x: 0, y: 6)
+            .opacity(configuration.isPressed ? 0.88 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == GlassProminentButtonStyle {
+    static var glassProminent: GlassProminentButtonStyle { GlassProminentButtonStyle() }
+    static func glassProminent(_ color: Color) -> GlassProminentButtonStyle { GlassProminentButtonStyle(tintColor: color) }
+}
+
+struct GlassButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(.regularMaterial, in: Circle())
+            .overlay(
+                Circle()
+                    .stroke(.white.opacity(0.2), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
+            .opacity(configuration.isPressed ? 0.75 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == GlassButtonStyle {
+    static var glass: GlassButtonStyle { GlassButtonStyle() }
+}

@@ -200,8 +200,24 @@ struct QuizView: View {
 
 extension Color {
     var gradientFill: LinearGradient {
-        LinearGradient(colors: [opacity(0.92), mix(with: .black, by: 0.18).opacity(0.86)],
-                       startPoint: .topLeading, endPoint: .bottomTrailing)
+        let mixColor: Color
+        if #available(iOS 18.0, *) {
+            mixColor = mix(with: .black, by: 0.18)
+        } else {
+            #if canImport(UIKit)
+            let uiColor = UIColor(self)
+            var r: CGFloat = 0; var g: CGFloat = 0; var b: CGFloat = 0; var a: CGFloat = 0
+            if uiColor.getRed(&r, green: &g, blue: &b, alpha: &a) {
+                mixColor = Color(.sRGB, red: Double(r * 0.82), green: Double(g * 0.82), blue: Double(b * 0.82), opacity: Double(a))
+            } else {
+                mixColor = self
+            }
+            #else
+            mixColor = self
+            #endif
+        }
+        return LinearGradient(colors: [opacity(0.92), mixColor.opacity(0.86)],
+                              startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 }
 
