@@ -1,0 +1,23 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Xcode
+**/xcuserdata/
+*.xcuserstate
+
+# IDEs
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+DerivedData/
