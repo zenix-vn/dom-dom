@@ -37,7 +37,10 @@ pnpm db:types          # sinh kiểu DB cho TS
 
 # 3. Cấu hình env (copy .env.example → .env.local trong apps/web, apps/admin)
 
-# 4. Chạy web + admin
+# 4. Build bundle game vào apps/web/public/games (để host phục vụ same-origin)
+pnpm build:games
+
+# 5. Chạy web + admin
 pnpm dev               # web :3000, admin :3001
 ```
 
