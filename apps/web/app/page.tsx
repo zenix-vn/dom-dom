@@ -1,19 +1,50 @@
 import Link from "next/link";
 import type { GameManifest } from "@domdom/game-sdk";
-import { supabase } from "@/lib/supabase";
-
-async function loadGames(): Promise<GameManifest[]> {
-  const { data } = await supabase.from("games").select("manifest").eq("enabled", true);
-  return (data ?? []).map((r) => (r as { manifest: GameManifest }).manifest);
-}
+import { createClient } from "@/lib/supabase/server";
+import { SignOutButton } from "@/components/SignOutButton";
 
 export default async function HomePage() {
-  const games = await loadGames();
+  const supabase = await createClient();
+
+  // Middleware đã đảm bảo có user; vẫn lấy lại để hiển thị.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: profileRow } = await supabase
+    .from("profiles")
+    .select("display_name, role, grade_band")
+    .eq("id", user!.id)
+    .single();
+  const profile = profileRow as {
+    display_name: string;
+    role: string;
+    grade_band: string | null;
+  } | null;
+
+  const { data: rows } = await supabase
+    .from("games")
+    .select("manifest")
+    .eq("enabled", true);
+  const games = (rows ?? []).map((r) => (r as { manifest: GameManifest }).manifest);
 
   return (
     <main style={{ maxWidth: 880, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ fontSize: 32 }}>✨ Đom Đóm</h1>
-      <p style={{ opacity: 0.7 }}>Chọn một trò chơi để bắt đầu học.</p>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <h1 style={{ fontSize: 32, margin: 0 }}>✨ Đom Đóm</h1>
+          <p style={{ opacity: 0.7, margin: "4px 0 0" }}>
+            Chào {profile?.display_name ?? "bạn"}!
+          </p>
+        </div>
+        <SignOutButton />
+      </header>
 
       <div
         style={{

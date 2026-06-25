@@ -7,7 +7,7 @@ import {
   type HostHandlers,
 } from "@domdom/game-sdk/host";
 import type { ContentItem } from "@domdom/game-sdk";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   entry: string; // URL bundle game
@@ -22,6 +22,7 @@ export function GameFrame({ entry, user }: Props) {
     const iframe = ref.current;
     if (!iframe) return;
 
+    const supabase = createClient();
     const port = iframePort(iframe, window.location.origin);
     const detach = attachHost(port, {
       user,
