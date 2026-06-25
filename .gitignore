@@ -1,23 +1,35 @@
-# macOS
-.DS_Store
-
-# Node
+# Dependencies
 node_modules/
+.pnpm-store/
 
-# Environment
+# Build output
+dist/
+build/
+.next/
+out/
+.turbo/
+DerivedData/
+*.tsbuildinfo
+
+# Env
 .env
 .env.local
 .env.*.local
 
-# Xcode
-**/xcuserdata/
-*.xcuserstate
+# Supabase
+supabase/.branches/
+supabase/.temp/
 
-# IDEs
-.vscode/
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
 .idea/
 
-# Build
-dist/
-build/
-DerivedData/
+# Xcode / iOS
+**/xcuserdata/
+*.xcuserstate

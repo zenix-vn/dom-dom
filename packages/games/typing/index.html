@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Luyện gõ phím — Đom Đóm</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        min-height: 100dvh;
+        background: #0b1020;
+        color: #f5f7ff;
+      }
+      #prompt { font-size: 28px; letter-spacing: 2px; }
+      .ok { color: #6ee7a8; }
+      .bad { color: #f87171; }
+      input {
+        font-size: 22px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid #334;
+        background: #161d36;
+        color: inherit;
+        margin-top: 16px;
+      }
+      #score { opacity: 0.7; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="prompt">…</div>
+      <input id="entry" autofocus autocomplete="off" />
+      <div id="score"></div>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

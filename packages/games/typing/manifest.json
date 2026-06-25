@@ -1,0 +1,10 @@
+{
+  "id": "typing-basic",
+  "name": "Luyện gõ phím",
+  "version": "0.1.0",
+  "category": "typing",
+  "grades": ["tieu-hoc", "thcs"],
+  "platforms": ["web"],
+  "entry": "/games/typing/index.html",
+  "icon": "⌨️"
+}
