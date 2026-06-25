@@ -1,10 +1,10 @@
 import type { GameManifest } from "@domdom/game-sdk";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
+import { SignOutButton } from "@/components/SignOutButton";
 
 export default async function AdminHome() {
-  const { data } = await supabase
-    .from("games")
-    .select("id, enabled, manifest");
+  const supabase = await createClient();
+  const { data } = await supabase.from("games").select("id, enabled, manifest");
   const games = (data ?? []) as {
     id: string;
     enabled: boolean;
@@ -13,7 +13,17 @@ export default async function AdminHome() {
 
   return (
     <main style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
-      <h1>Đom Đóm — Quản trị</h1>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <h1>Đom Đóm — Quản trị</h1>
+        <SignOutButton />
+      </header>
+
       <h2>Registry game</h2>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>

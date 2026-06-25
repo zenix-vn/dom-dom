@@ -23,6 +23,9 @@ importers:
       '@domdom/supabase-client':
         specifier: workspace:*
         version: link:../../packages/supabase-client
+      '@supabase/ssr':
+        specifier: ^0.5.2
+        version: 0.5.2(@supabase/supabase-js@2.108.2)
       '@supabase/supabase-js':
         specifier: ^2.45.0
         version: 2.108.2

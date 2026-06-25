@@ -12,6 +12,7 @@
   "dependencies": {
     "@domdom/game-sdk": "workspace:*",
     "@domdom/supabase-client": "workspace:*",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.0",
     "next": "^15.0.3",
     "react": "^19.0.0",
