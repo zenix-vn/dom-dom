@@ -30,13 +30,13 @@ importers:
         specifier: ^2.45.0
         version: 2.108.2
       next:
-        specifier: ^15.0.3
+        specifier: 15.5.19
         version: 15.5.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
-        specifier: ^19.0.0
+        specifier: 19.2.7
         version: 19.2.7
       react-dom:
-        specifier: ^19.0.0
+        specifier: 19.2.7
         version: 19.2.7(react@19.2.7)
     devDependencies:
       '@types/node':
@@ -70,13 +70,13 @@ importers:
         specifier: ^2.45.0
         version: 2.108.2
       next:
-        specifier: ^15.0.3
+        specifier: 15.5.19
         version: 15.5.19(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react:
-        specifier: ^19.0.0
+        specifier: 19.2.7
         version: 19.2.7
       react-dom:
-        specifier: ^19.0.0
+        specifier: 19.2.7
         version: 19.2.7(react@19.2.7)
     devDependencies:
       '@types/node':
