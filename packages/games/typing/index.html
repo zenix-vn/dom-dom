@@ -21,9 +21,11 @@
         color: #f5f8ff;
         background:
           image-set(url('/games/typing/bg.png') 1x) center/cover no-repeat fixed,
-          radial-gradient(900px 600px at 80% 0%, rgba(120,130,224,.35), transparent 60%),
-          radial-gradient(700px 500px at 0% 100%, rgba(40,66,170,.4), transparent 60%),
-          linear-gradient(180deg, #1a1b6e 0%, #2a2596 55%, #3a3aa6 100%);
+          radial-gradient(560px 240px at 10% 100%, rgba(196,150,235,.55), transparent 72%),
+          radial-gradient(560px 240px at 90% 100%, rgba(196,150,235,.55), transparent 72%),
+          radial-gradient(820px 300px at 50% 108%, rgba(150,120,225,.5), transparent 72%),
+          radial-gradient(900px 600px at 80% 2%, rgba(120,130,224,.35), transparent 60%),
+          linear-gradient(180deg, #14155f 0%, #232195 52%, #3a36a8 100%);
         min-height: 100dvh;
         overflow: hidden;
       }
@@ -54,20 +56,24 @@
 
       .row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-      .stat { display: flex; align-items: center; gap: 10px; border-radius: 18px; padding: 9px 14px; color: #fff;
-        box-shadow: inset 0 2px 0 rgba(255,255,255,.35), 0 6px 0 rgba(0,0,0,.18), 0 10px 22px rgba(0,0,0,.28); }
-      .stat .ic { font-size: 22px; width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 13px; background: rgba(255,255,255,.22); box-shadow: inset 0 0 0 1px rgba(255,255,255,.3); }
-      .stat .tx { text-align: left; line-height: 1.05; min-width: 0; }
-      .stat .k { font-size: 11px; font-weight: 700; color: rgba(255,255,255,.85); text-transform: uppercase; letter-spacing: .05em; }
-      .stat .v { font-size: 24px; font-weight: 900; color: #fff; }
-      .stat .v small { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.82); }
-      .stat--score { background: linear-gradient(180deg,#9c79ff,#7b50e8); }
-      .stat--streak { background: linear-gradient(180deg,#ff7a7a,#ef4f4f); }
-      .stat--wpm { background: linear-gradient(180deg,#5ad98a,#34bb65); }
-      .stat--time { background: linear-gradient(180deg,#5fb8ff,#3a95f2); }
-      #timeBar { height: 8px; border-radius: 99px; background: rgba(255,255,255,.1); overflow: hidden; margin-bottom: 18px; }
-      #timeFill { height: 100%; width: 100%; background: linear-gradient(90deg,#34e07f,#ffd23d,#ff5d6c); transition: width .2s linear; }
+      /* Màn chơi: bỏ thẻ nền, để các thành phần nổi trực tiếp trên bầu trời */
+      #screen-game { background: transparent; border: none; box-shadow: none; backdrop-filter: none; width: min(1060px, 97vw); padding: 4px 8px; }
+      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
+      .stat { position: relative; display: flex; align-items: center; gap: 13px; border-radius: 22px; padding: 13px 20px; color: #fff; overflow: hidden;
+        box-shadow: inset 0 2px 2px rgba(255,255,255,.5), inset 0 -4px 8px rgba(0,0,0,.22), 0 8px 0 rgba(0,0,0,.16), 0 14px 26px rgba(0,0,0,.3); }
+      .stat::before { content: ""; position: absolute; inset: 3px 3px 50% 3px; border-radius: 18px 18px 30px 30px; background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events: none; }
+      .stat .ic { position: relative; font-size: 28px; width: 54px; height: 54px; flex: 0 0 54px; display: grid; place-items: center; border-radius: 16px; background: rgba(0,0,0,.18); box-shadow: inset 0 2px 4px rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.3); }
+      .stat .tx { position: relative; text-align: left; line-height: 1.04; min-width: 0; }
+      .stat .k { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.92); text-transform: uppercase; letter-spacing: .06em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+      .stat .v { font-size: 30px; font-weight: 900; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.3); }
+      .stat .v small { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.85); }
+      .stat--score { background: linear-gradient(180deg,#a987ff,#7b4fe8); }
+      .stat--streak { background: linear-gradient(180deg,#ff8a6a,#ef4a4a); }
+      .stat--wpm { background: linear-gradient(180deg,#6ce29a,#2fb85f); }
+      .stat--time { background: linear-gradient(180deg,#6cc2ff,#2f8ff0); }
+      #timeBar { position: relative; height: 16px; border-radius: 99px; background: rgba(18,18,72,.55); box-shadow: inset 0 2px 4px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.12); margin: 4px 0 18px; }
+      #timeFill { height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg,#34e07f,#9be84f,#ffd23d,#ff8a3d,#ff5d6c); box-shadow: inset 0 2px 2px rgba(255,255,255,.5); transition: width .3s linear; }
+      #timeStar { position: absolute; top: 50%; left: 100%; transform: translate(-50%,-50%); font-size: 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); transition: left .3s linear; pointer-events: none; }
 
       .prompt { font-size: 40px; font-weight: 800; line-height: 1.2; letter-spacing: .5px; word-break: break-word; user-select: none;
         width: fit-content; max-width: 92%; margin: 0 auto; min-width: 160px; padding: 8px 28px; border-radius: 20px;
@@ -107,7 +113,7 @@
 
       /* Bàn phím ảo hướng dẫn ngón tay (kiểu Typing Master) */
       /* Hình hai bàn tay thật — ngón sắp gõ sẽ sáng đúng màu */
-      #hands { display: block; margin: 8px auto 2px; width: min(440px, 92%); height: auto; }
+      #hands { display: block; margin: 10px auto 2px; width: min(520px, 60%); height: auto; }
       /* Tay kiểu găng trắng, ngón tô màu như thiết kế */
       #hands .palm, #hands .thenar, #hands .cuff { fill: #fbfcff; stroke: #d7dcef; stroke-width: 2; }
       #hands .finger { fill: var(--fc); stroke: rgba(0,0,0,.10); stroke-width: 1.5; transition: filter .12s, stroke .12s; }
@@ -192,7 +198,7 @@
           <div class="stat stat--wpm"><span class="ic">⚡</span><div class="tx"><div class="k">WPM</div><div class="v" id="hWpm">0</div></div></div>
           <div class="stat stat--time"><span class="ic">⏳</span><div class="tx"><div class="k">Thời gian</div><div class="v" id="hTime">60<small>s</small></div></div></div>
         </div>
-        <div id="timeBar"><div id="timeFill"></div></div>
+        <div id="timeBar"><div id="timeFill"></div><div id="timeStar">⭐</div></div>
         <div class="prompt" id="prompt"></div>
         <div class="ime-hint" id="imeHint"></div>
         <input class="typebox" id="typebox" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Gõ vào đây…" />

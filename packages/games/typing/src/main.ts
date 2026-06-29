@@ -187,18 +187,18 @@ function startFireflies() {
   const cv = $("fireflies") as HTMLCanvasElement;
   const ctx = cv.getContext("2d")!;
   let w = 0, h = 0;
-  const dots = Array.from({ length: 46 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 2 + 1, p: Math.random() * Math.PI * 2, s: Math.random() * 0.4 + 0.1 }));
+  const dots = Array.from({ length: 95 }, () => ({ x: Math.random(), y: Math.random(), r: Math.random() * 1.6 + 0.6, p: Math.random() * Math.PI * 2, s: Math.random() * 0.4 + 0.1, white: Math.random() < 0.68 }));
   function resize() { w = cv.width = innerWidth; h = cv.height = innerHeight; }
   resize(); addEventListener("resize", resize);
   function frame(t: number) {
     ctx.clearRect(0, 0, w, h);
     for (const d of dots) {
-      const a = 0.35 + 0.45 * (0.5 + 0.5 * Math.sin(t / 600 + d.p));
+      const a = 0.3 + 0.5 * (0.5 + 0.5 * Math.sin(t / 600 + d.p));
       const x = (d.x + Math.sin(t / 3000 + d.p) * 0.02) * w;
-      const y = ((d.y + (t / 1000) * d.s * 0.01) % 1) * h;
+      const y = ((d.y + (t / 1000) * d.s * 0.006) % 1) * h;
       ctx.beginPath(); ctx.arc(x, y, d.r, 0, 7);
-      ctx.fillStyle = `rgba(255,224,120,${a})`;
-      ctx.shadowColor = "rgba(255,210,90,.9)"; ctx.shadowBlur = 8;
+      if (d.white) { ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.shadowColor = "rgba(255,255,255,.75)"; ctx.shadowBlur = 4; }
+      else { ctx.fillStyle = `rgba(255,224,120,${a})`; ctx.shadowColor = "rgba(255,210,90,.9)"; ctx.shadowBlur = 9; }
       ctx.fill();
     }
     requestAnimationFrame(frame);
@@ -447,6 +447,7 @@ function startRun(level: Level) {
   updateHud();
   $("hTime").innerHTML = `${ROUND_SECONDS}<small>s</small>`;
   $("timeFill").style.width = "100%";
+  $("timeStar").style.left = "100%";
   newTarget();
   const box = $("typebox") as HTMLInputElement;
   box.disabled = false; box.value = ""; box.focus();
@@ -455,7 +456,9 @@ function startRun(level: Level) {
     if (!run) return;
     run.timeLeft--;
     $("hTime").innerHTML = `${run.timeLeft}<small>s</small>`;
-    $("timeFill").style.width = `${(run.timeLeft / ROUND_SECONDS) * 100}%`;
+    const pct = (run.timeLeft / ROUND_SECONDS) * 100;
+    $("timeFill").style.width = `${pct}%`;
+    $("timeStar").style.left = `${pct}%`;
     updateHud();
     if (run.timeLeft <= 0) endRun();
   }, 1000);
