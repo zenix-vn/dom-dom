@@ -269,15 +269,26 @@ const KEY_INFO: Record<string, [("l" | "r"), Finger]> = {
   space: ["l", "t"],
 };
 
-// Vẽ hai bàn tay "thật" bằng SVG. Da màu thịt; mỗi ngón thon có móng tô màu
-// theo nhóm ngón. Ngón cần gõ (id fg-<l|r><finger>) sẽ sáng lên đúng màu.
+// Vị trí đầu mỗi ngón trên ảnh bàn tay (theo % của ảnh) — đo từ ban-tay.png.
+const FINGER_POS: Record<string, [number, number]> = {
+  lp: [5.0, 28.5], rp: [95.0, 28.3],
+  lr: [14.5, 10.8], rr: [85.2, 11.0],
+  lm: [26.7, 4.8], rm: [72.8, 5.1],
+  li: [39.1, 14.3], ri: [60.4, 13.9],
+  lt: [40.9, 46.3], rt: [59.0, 46.1],
+};
 
+// Đốm sáng lớn di chuyển tới đầu ngón tay cần gõ tiếp theo.
 function highlightFinger(key: string) {
-  document.querySelectorAll("#hands .finger.lit").forEach((el) => el.classList.remove("lit"));
-  if (key === "space") { document.getElementById("fg-lt")?.classList.add("lit"); document.getElementById("fg-rt")?.classList.add("lit"); return; }
-  const info = KEY_INFO[key];
-  if (!info) return;
-  document.getElementById(`fg-${info[0]}${info[1]}`)?.classList.add("lit");
+  const glow = document.getElementById("fingerGlow");
+  if (!glow) return;
+  let pos: [number, number] | undefined;
+  if (key === "space") pos = [50, 46.2];               // ngón cái → giữa hai ngón cái
+  else { const info = KEY_INFO[key]; if (info) pos = FINGER_POS[`${info[0]}${info[1]}`]; }
+  if (!pos) { glow.classList.remove("on"); return; }
+  glow.style.left = `${pos[0]}%`;
+  glow.style.top = `${pos[1]}%`;
+  glow.classList.add("on");
 }
 interface Key { k: string; label?: string; f: Finger; wide?: boolean; home?: boolean; }
 const KB_ROWS: Key[][] = [
