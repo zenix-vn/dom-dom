@@ -366,13 +366,19 @@ function renderPrompt() {
   if (!run) return;
   const target = run.target;
   const typed = ($("typebox") as HTMLInputElement).value;
+  // Bảng màu rực rỡ — mỗi chữ một màu, lặp lại theo vị trí.
+  const PROMPT_COLORS = ["#FF5D8F", "#FF9F2E", "#FFD23D", "#3FD86B", "#37C6FF", "#7C5CFF", "#FF6EC7"];
   let html = "";
+  let li = 0; // chỉ đếm ký tự nhìn thấy (bỏ qua khoảng trắng) để màu liền mạch
   for (let i = 0; i < target.length; i++) {
-    const ch = target[i] === " " ? "&nbsp;" : escapeHtml(target[i]!);
+    const isSpace = target[i] === " ";
+    const ch = isSpace ? "&nbsp;" : escapeHtml(target[i]!);
+    const color = PROMPT_COLORS[li % PROMPT_COLORS.length];
+    if (!isSpace) li++;
     let cls = "ch todo";
     if (i < typed.length) cls = typed[i] === target[i] ? "ch ok" : "ch bad";
     else if (i === typed.length) cls = "ch cur";
-    html += `<span class="${cls}">${ch}</span>`;
+    html += `<span class="${cls}" style="--cc:${color}">${ch}</span>`;
   }
   $("prompt").innerHTML = html;
   highlightNextKey();
