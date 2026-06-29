@@ -61,19 +61,17 @@
       /* Màn chơi: bỏ thẻ nền, để các thành phần nổi trực tiếp trên bầu trời */
       #screen-game { background: transparent; border: none; box-shadow: none; backdrop-filter: none; width: min(1060px, 97vw); padding: 4px 8px; }
       .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
-      .stat { position: relative; display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 8px 14px; color: #fff; overflow: hidden;
-        box-shadow: inset 0 2px 2px rgba(255,255,255,.5), inset 0 -4px 8px rgba(0,0,0,.22), 0 5px 0 rgba(0,0,0,.16), 0 10px 18px rgba(0,0,0,.3); }
-      .stat::before { content: ""; position: absolute; inset: 3px 3px 50% 3px; border-radius: 14px 14px 26px 26px; background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events: none; }
-      .stat .ic { position: relative; width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center; border-radius: 14px; overflow: hidden; }
-      .stat .ic img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .stat .tx { position: relative; text-align: left; line-height: 1.04; min-width: 0; }
-      .stat .k { font-size: 11px; font-weight: 800; color: rgba(255,255,255,.92); text-transform: uppercase; letter-spacing: .05em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
-      .stat .v { font-size: 23px; font-weight: 900; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.3); }
-      .stat .v small { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.85); }
-      .stat--score { background: linear-gradient(180deg,#a987ff,#7b4fe8); }
-      .stat--streak { background: linear-gradient(180deg,#ff8a6a,#ef4a4a); }
-      .stat--wpm { background: linear-gradient(180deg,#6ce29a,#2fb85f); }
-      .stat--time { background: linear-gradient(180deg,#6cc2ff,#2f8ff0); }
+      /* Mỗi ô HUD dùng nguyên ảnh button thiết kế làm nền; icon đã nằm sẵn bên trái ảnh. */
+      .hud .stat { position: relative; display: flex; align-items: center; aspect-ratio: 600 / 260; padding: 0 5% 0 33%; color: #fff;
+        background-repeat: no-repeat; background-position: 50%; background-size: 100% 100%; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }
+      .hud .stat .tx { text-align: left; line-height: 1.05; min-width: 0; }
+      .hud .stat .k { font-size: clamp(11px, 1.25vw, 15px); font-weight: 800; color: rgba(255,255,255,.95); text-transform: uppercase; letter-spacing: .05em; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+      .hud .stat .v { font-size: clamp(22px, 3vw, 34px); font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,.35); }
+      .hud .stat .v small { font-size: .5em; font-weight: 800; color: rgba(255,255,255,.9); }
+      .stat--score { background-image: url('/games/typing/pill-score.png'); }
+      .stat--streak { background-image: url('/games/typing/pill-streak.png'); }
+      .stat--wpm { background-image: url('/games/typing/pill-wpm.png'); }
+      .stat--time { background-image: url('/games/typing/pill-time.png'); }
       #timeBar { position: relative; height: 16px; border-radius: 99px; background: rgba(18,18,72,.55); box-shadow: inset 0 2px 4px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.12); margin: 4px 0 18px; }
       #timeFill { height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg,#34e07f,#9be84f,#ffd23d,#ff8a3d,#ff5d6c); box-shadow: inset 0 2px 2px rgba(255,255,255,.5); transition: width .3s linear; }
       #timeStar { position: absolute; top: 50%; left: 100%; transform: translate(-50%,-50%); font-size: 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); transition: left .3s linear; pointer-events: none; }
@@ -217,10 +215,10 @@
 
       <section class="panel hide" id="screen-game">
         <div class="hud">
-          <div class="stat stat--score"><span class="ic"><img src="/games/typing/hud-score.png" alt="" /></span><div class="tx"><div class="k">Điểm</div><div class="v" id="hScore">0</div></div></div>
-          <div class="stat stat--streak"><span class="ic"><img src="/games/typing/hud-streak.png" alt="" /></span><div class="tx"><div class="k">Streak</div><div class="v" id="hStreak">0<small>×<span id="hMult">1.0</span></small></div></div></div>
-          <div class="stat stat--wpm"><span class="ic"><img src="/games/typing/hud-wpm.png" alt="" /></span><div class="tx"><div class="k">WPM</div><div class="v" id="hWpm">0</div></div></div>
-          <div class="stat stat--time"><span class="ic"><img src="/games/typing/hud-time.png" alt="" /></span><div class="tx"><div class="k">Thời gian</div><div class="v" id="hTime">60<small>s</small></div></div></div>
+          <div class="stat stat--score"><div class="tx"><div class="k">Điểm</div><div class="v" id="hScore">0</div></div></div>
+          <div class="stat stat--streak"><div class="tx"><div class="k">Streak</div><div class="v" id="hStreak">0<small>×<span id="hMult">1.0</span></small></div></div></div>
+          <div class="stat stat--wpm"><div class="tx"><div class="k">WPM</div><div class="v" id="hWpm">0</div></div></div>
+          <div class="stat stat--time"><div class="tx"><div class="k">Thời gian</div><div class="v" id="hTime">60<small>s</small></div></div></div>
         </div>
         <div id="timeBar"><div id="timeFill"></div><div id="timeStar">⭐</div></div>
         <div class="prompt" id="prompt"></div>
