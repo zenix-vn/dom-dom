@@ -53,6 +53,7 @@ RSYNC_EXCLUDES=(
   --exclude '.claude'
   --exclude '.DS_Store'
   --exclude 'apps/web/public/games'  # game bundle, Dockerfile build lại
+  --exclude 'images'                 # thư mục asset thiết kế, không cần cho build
   --exclude '*.log'
 )
 
