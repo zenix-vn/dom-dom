@@ -168,6 +168,46 @@ function confetti() {
 // f = nhóm ngón (màu): p=út, r=áp út, m=giữa, i=trỏ, t=cái. Hai bàn tay dùng chung màu.
 type Finger = "p" | "r" | "m" | "i" | "t";
 const FCLASS: Record<Finger, string> = { p: "f-pink", r: "f-amber", m: "f-green", i: "f-blue", t: "f-grey" };
+const FCOLOR: Record<Finger, string> = { p: "#f3a6c4", r: "#f6c66a", m: "#86d99a", i: "#8fbcff", t: "#b6c0dc" };
+
+// Phím vật lý → (bàn tay, ngón) để làm sáng đúng ngón trên hình bàn tay.
+const KEY_INFO: Record<string, [("l" | "r"), Finger]> = {
+  "`": ["l", "p"], "1": ["l", "p"], "2": ["l", "r"], "3": ["l", "m"], "4": ["l", "i"], "5": ["l", "i"],
+  "6": ["r", "i"], "7": ["r", "i"], "8": ["r", "m"], "9": ["r", "r"], "0": ["r", "p"], "-": ["r", "p"], "=": ["r", "p"],
+  q: ["l", "p"], w: ["l", "r"], e: ["l", "m"], r: ["l", "i"], t: ["l", "i"],
+  y: ["r", "i"], u: ["r", "i"], i: ["r", "m"], o: ["r", "r"], p: ["r", "p"], "[": ["r", "p"], "]": ["r", "p"],
+  a: ["l", "p"], s: ["l", "r"], d: ["l", "m"], f: ["l", "i"], g: ["l", "i"],
+  h: ["r", "i"], j: ["r", "i"], k: ["r", "m"], l: ["r", "r"], ";": ["r", "p"], "'": ["r", "p"],
+  z: ["l", "p"], x: ["l", "r"], c: ["l", "m"], v: ["l", "i"], b: ["l", "i"],
+  n: ["r", "i"], m: ["r", "i"], ",": ["r", "m"], ".": ["r", "r"], "/": ["r", "p"],
+  space: ["l", "t"],
+};
+
+// Vẽ hai bàn tay (4 ngón + ngón cái) bằng SVG; mỗi ngón có id fg-<l|r><finger>.
+function buildHands() {
+  const fingers: { f: Finger; x: number; y: number }[] = [
+    { f: "p", x: 0, y: 36 }, { f: "r", x: 33, y: 12 }, { f: "m", x: 66, y: 2 }, { f: "i", x: 99, y: 18 },
+  ];
+  const W = 26, BOTTOM = 150;
+  const hand = (side: "l" | "r") => {
+    let s = `<rect class="palm" x="-8" y="118" width="150" height="48" rx="24"/>`;
+    for (const fg of fingers)
+      s += `<rect id="fg-${side}${fg.f}" class="finger" x="${fg.x}" y="${fg.y}" width="${W}" height="${BOTTOM - fg.y}" rx="13" fill="${FCOLOR[fg.f]}"/>`;
+    s += `<rect id="fg-${side}t" class="finger" x="120" y="124" width="58" height="24" rx="12" fill="${FCOLOR.t}" transform="rotate(16 120 136)"/>`;
+    return s;
+  };
+  $("hands").innerHTML =
+    `<g transform="translate(40,8)">${hand("l")}</g>` +
+    `<g transform="translate(440,8) scale(-1,1)">${hand("r")}</g>`;
+}
+
+function highlightFinger(key: string) {
+  document.querySelectorAll("#hands .finger.lit").forEach((el) => el.classList.remove("lit"));
+  if (key === "space") { document.getElementById("fg-lt")?.classList.add("lit"); document.getElementById("fg-rt")?.classList.add("lit"); return; }
+  const info = KEY_INFO[key];
+  if (!info) return;
+  document.getElementById(`fg-${info[0]}${info[1]}`)?.classList.add("lit");
+}
 interface Key { k: string; label?: string; f: Finger; wide?: boolean; home?: boolean; }
 const KB_ROWS: Key[][] = [
   [["`","p"],["1","p"],["2","r"],["3","m"],["4","i"],["5","i"],["6","i"],["7","i"],["8","m"],["9","r"],["0","p"],["-","p"],["=","p"]].map(([k, f]) => ({ k: k as string, f: f as Finger })),
@@ -207,6 +247,7 @@ function highlightNextKey() {
   if (next === undefined) return;
   const key = baseKey(next);
   root.querySelector(`.key[data-k="${key === '"' ? "" : key}"]`)?.classList.add("next");
+  highlightFinger(key);
 }
 
 // ---------- Trạng thái ván chơi ----------
@@ -427,6 +468,7 @@ async function main() {
   startFireflies();
   buildLevelList();
   buildKeyboard();
+  buildHands();
   wireEvents();
 
   // Cho phép vào thẳng một cấp qua ?lv=N (tiện chia sẻ / mở nhanh).

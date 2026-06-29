@@ -90,7 +90,13 @@
       .empty { color: var(--muted); text-align: center; padding: 18px; }
 
       /* Bàn phím ảo hướng dẫn ngón tay (kiểu Typing Master) */
-      #keyboard { margin: 16px auto 0; display: flex; flex-direction: column; gap: 6px; align-items: center; user-select: none; }
+      /* Hình hai bàn tay — ngón sắp gõ sẽ sáng */
+      #hands { display: block; margin: 10px auto 2px; width: min(420px, 90%); height: auto; }
+      #hands .palm { fill: #e7d6c6; opacity: .92; }
+      #hands .finger { stroke: rgba(0,0,0,.14); stroke-width: 1; opacity: .9; transition: filter .1s, opacity .1s; }
+      #hands .finger.lit { opacity: 1; stroke: #fff; stroke-width: 3; filter: drop-shadow(0 0 10px rgba(255,221,90,.95)) brightness(1.12); }
+
+      #keyboard { margin: 10px auto 0; display: flex; flex-direction: column; gap: 6px; align-items: center; user-select: none; }
       .krow { display: flex; gap: 6px; }
       .key {
         min-width: 38px; height: 40px; padding: 0 8px; display: grid; place-items: center;
@@ -160,6 +166,7 @@
         <div class="ime-hint" id="imeHint"></div>
         <input class="typebox" id="typebox" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Gõ vào đây…" />
         <div class="combo" id="comboMsg"></div>
+        <svg id="hands" viewBox="0 0 480 178" aria-hidden="true"></svg>
         <div id="keyboard"></div>
         <div class="legend">
           <span><i style="background:#f3a6c4"></i>Ngón út</span>
