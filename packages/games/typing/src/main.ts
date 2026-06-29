@@ -20,15 +20,16 @@ interface Level {
   icon: string;
   tag: string;
   bank: string[];
+  lang: "en" | "vi"; // en: tắt bộ gõ; vi: bật bộ gõ
 }
 
-// Cấp 1 theo lối Typing Master: bắt đầu từ hàng phím cơ sở (home row) f j,
-// rồi ghép dần các phím a s d f g h j k l ;
-const HOME_DRILL = [
-  "fff", "jjj", "ddd", "kkk", "sss", "lll", "fj", "jf", "dk", "kd", "sl", "ls",
-  "fjdk", "dksl", "asdf", "jkl;", "ffjj", "ddkk", "as df", "jk l;",
-  "dad", "sad", "ask", "lad", "fall", "flask", "salad", "glad", "hall", "gas",
-];
+// Lộ trình kiểu Typing Master — đi từ rất cơ bản:
+// Cấp 1: chỉ 2 phím trỏ F & J (tập đặt tay).
+const FJ_DRILL = ["f", "j", "f", "j", "ff", "jj", "fj", "jf", "fjf", "jfj", "ffjj", "jjff", "fj fj", "jf jf", "fjfj", "jfjf"];
+// Cấp 2: cả hàng phím cơ sở a s d f j k l ;
+const HOME_LETTERS = ["a", "s", "d", "f", "j", "k", "l", ";", "as", "df", "jk", "l;", "sa", "fd", "kj", ";l", "asdf", "jkl;", "ad", "sf", "jl", "k;"];
+// Cấp 3: từ ngắn chỉ dùng phím hàng cơ sở (a s d f g h j k l)
+const BASIC_WORDS = ["dad", "sad", "ask", "add", "all", "fall", "gas", "lad", "hall", "lass", "salad", "glad", "flask", "dash", "hash", "shall", "alaska"];
 
 const EN_WORDS = [
   "cat", "dog", "sun", "moon", "star", "book", "tree", "fish", "bird", "milk",
@@ -62,12 +63,21 @@ const VI_PHRASES = [
 ];
 
 const LEVELS: Level[] = [
-  { id: 1, name: "Hàng phím cơ sở", desc: "Tập 10 ngón từ home row", icon: "🔤", tag: "Cấp 1", bank: HOME_DRILL },
-  { id: 2, name: "Từ tiếng Anh", desc: "Các từ ngắn quen thuộc", icon: "🅰️", tag: "Cấp 2", bank: EN_WORDS },
-  { id: 3, name: "Câu tiếng Anh", desc: "Cụm từ & câu ngắn", icon: "💬", tag: "Cấp 3", bank: EN_PHRASES },
-  { id: 4, name: "Từ tiếng Việt", desc: "Có dấu — dùng bộ gõ", icon: "🇻🇳", tag: "Cấp 4", bank: VI_WORDS },
-  { id: 5, name: "Câu & tục ngữ", desc: "Tiếng Việt nâng cao", icon: "📜", tag: "Cấp 5", bank: VI_PHRASES },
+  { id: 1, name: "Phím F & J", desc: "Đặt 2 ngón trỏ vào gờ nổi", icon: "☝️", tag: "Cấp 1", bank: FJ_DRILL, lang: "en" },
+  { id: 2, name: "Hàng cơ sở", desc: "8 phím: a s d f · j k l ;", icon: "⌨️", tag: "Cấp 2", bank: HOME_LETTERS, lang: "en" },
+  { id: 3, name: "Từ cơ bản", desc: "Ghép chữ ở hàng cơ sở", icon: "🧩", tag: "Cấp 3", bank: BASIC_WORDS, lang: "en" },
+  { id: 4, name: "Từ tiếng Anh", desc: "Mở rộng cả bàn phím", icon: "🅰️", tag: "Cấp 4", bank: EN_WORDS, lang: "en" },
+  { id: 5, name: "Câu tiếng Anh", desc: "Cụm từ & câu ngắn", icon: "💬", tag: "Cấp 5", bank: EN_PHRASES, lang: "en" },
+  { id: 6, name: "Từ tiếng Việt", desc: "Có dấu — bật bộ gõ", icon: "🇻🇳", tag: "Cấp 6", bank: VI_WORDS, lang: "vi" },
+  { id: 7, name: "Câu & tục ngữ", desc: "Tiếng Việt nâng cao", icon: "📜", tag: "Cấp 7", bank: VI_PHRASES, lang: "vi" },
 ];
+
+const SEEN_GUIDE_KEY = "domdom_typing_seen_guide";
+function imeText(lang: "en" | "vi") {
+  return lang === "vi"
+    ? "🇻🇳 BẬT bộ gõ tiếng Việt (Telex/VNI) để gõ dấu."
+    : "⌨️ TẮT bộ gõ tiếng Việt — chỉ gõ chữ cái Latin.";
+}
 
 const ROUND_SECONDS = 60;
 const LB_KEY = "domdom_typing_lb_v1";
@@ -75,7 +85,7 @@ const NAME_KEY = "domdom_typing_name";
 
 // ---------- Tiện ích DOM ----------
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const screens = ["start", "game", "over", "lb"] as const;
+const screens = ["start", "game", "over", "lb", "guide"] as const;
 function show(name: (typeof screens)[number]) {
   for (const s of screens) $(`screen-${s}`).classList.toggle("hide", s !== name);
 }
@@ -317,6 +327,7 @@ function startRun(level: Level) {
   };
   show("game");
   $("comboMsg").textContent = "";
+  $("imeHint").textContent = imeText(level.lang);
   updateHud();
   $("hTime").innerHTML = `${ROUND_SECONDS}<small>s</small>`;
   $("timeFill").style.width = "100%";
@@ -401,6 +412,10 @@ function wireEvents() {
     $("muteBtn").textContent = muted ? "🔇" : "🔊";
   });
 
+  $("guideBtn").addEventListener("click", () => show("guide"));
+  $("guideBack").addEventListener("click", () => show("start"));
+  $("guideDone").addEventListener("click", () => { localStorage.setItem(SEEN_GUIDE_KEY, "1"); show("start"); });
+
   document.addEventListener("keydown", (e) => {
     if (!run?.active) return;
     if (document.activeElement !== $("typebox") && e.key.length === 1) $("typebox").focus();
@@ -413,12 +428,13 @@ async function main() {
   buildLevelList();
   buildKeyboard();
   wireEvents();
-  show("start");
 
   // Cho phép vào thẳng một cấp qua ?lv=N (tiện chia sẻ / mở nhanh).
   const lv = Number(new URLSearchParams(location.search).get("lv"));
   const deep = LEVELS.find((l) => l.id === lv);
   if (deep) startRun(deep);
+  else if (!localStorage.getItem(SEEN_GUIDE_KEY)) show("guide"); // lần đầu → hướng dẫn
+  else show("start");
 
   // Kết nối host nếu được nhúng; chạy độc lập thì bỏ qua sau 600ms.
   host = await Promise.race([
