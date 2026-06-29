@@ -88,6 +88,11 @@
       table.lb tr.me td { color: var(--yellow); font-weight: 700; }
       table.lb .rank { width: 34px; color: var(--muted); }
       .empty { color: var(--muted); text-align: center; padding: 18px; }
+      .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
+      .tab { cursor: pointer; border: 1px solid var(--line); background: rgba(255,255,255,.05); color: #dfe7ff; font: inherit; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 12px; transition: .12s; }
+      .tab:hover { border-color: var(--yellow); }
+      .tab.active { background: linear-gradient(180deg,#ffe06a,#fbbf24); color: #5a3d00; border-color: transparent; }
+      table.lb th.hi, table.lb td.hi { background: rgba(255,210,61,.13); color: var(--yellow); }
 
       /* Bàn phím ảo hướng dẫn ngón tay (kiểu Typing Master) */
       /* Hình hai bàn tay — ngón sắp gõ sẽ sáng */
@@ -199,6 +204,11 @@
 
       <section class="panel hide" id="screen-lb">
         <div class="title">🏆 Bảng xếp hạng</div>
+        <div class="tabs" id="lbTabs">
+          <button class="tab active" data-m="total">🏅 Tổng điểm</button>
+          <button class="tab" data-m="best">⭐ Kỷ lục</button>
+          <button class="tab" data-m="acc">🎯 Chính xác</button>
+        </div>
         <div id="lbBody"></div>
         <div class="row" style="margin-top:16px">
           <button class="btn btn--ghost" id="lbBack">← Quay lại</button>

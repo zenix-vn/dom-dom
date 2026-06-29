@@ -109,23 +109,76 @@ function beep(freq: number, dur = 0.06, type: OscillatorType = "sine", vol = 0.0
   } catch { /* ignore */ }
 }
 
-// ---------- Bảng xếp hạng ----------
-interface Entry { name: string; score: number; wpm: number; acc: number; level: number; date: number; }
-function loadLb(): Entry[] {
-  try { return JSON.parse(localStorage.getItem(LB_KEY) || "[]") as Entry[]; } catch { return []; }
+// ---------- Bảng xếp hạng (gộp theo người chơi) ----------
+// Mỗi người chơi (định danh theo TÊN) là 1 dòng. Chơi nhiều lần thì cộng dồn
+// tổng điểm, đồng thời lưu kỷ lục 1 lần (điểm cao nhất, WPM, độ chính xác).
+type LbMode = "total" | "best" | "acc";
+const LB2_KEY = "domdom_typing_lb_v2";
+let lbMode: LbMode = "total";
+interface Player {
+  name: string; plays: number; total: number;
+  best: number; bestWpm: number; bestAcc: number; bestStreak: number; date: number;
 }
-function saveLb(list: Entry[]) {
-  localStorage.setItem(LB_KEY, JSON.stringify(list.slice(0, 20)));
+const nkey = (s: string) => s.trim().toLowerCase();
+
+function loadPlayers(): Player[] {
+  try {
+    const raw = localStorage.getItem(LB2_KEY);
+    if (raw) return JSON.parse(raw) as Player[];
+  } catch { /* ignore */ }
+  // Di trú dữ liệu cũ (v1: mỗi lượt 1 dòng) → gộp theo tên.
+  try {
+    const old = JSON.parse(localStorage.getItem(LB_KEY) || "[]") as Array<{ name?: string; score?: number; wpm?: number; acc?: number; date?: number }>;
+    const map = new Map<string, Player>();
+    for (const e of old) {
+      const k = nkey(e.name || "Bé Đom");
+      const p = map.get(k) || { name: e.name || "Bé Đom", plays: 0, total: 0, best: 0, bestWpm: 0, bestAcc: 0, bestStreak: 0, date: 0 };
+      p.plays++; p.total += e.score || 0; p.best = Math.max(p.best, e.score || 0);
+      p.bestWpm = Math.max(p.bestWpm, e.wpm || 0); p.bestAcc = Math.max(p.bestAcc, e.acc || 0);
+      p.date = Math.max(p.date, e.date || 0);
+      map.set(k, p);
+    }
+    const players = [...map.values()];
+    if (players.length) savePlayers(players);
+    return players;
+  } catch { return []; }
 }
-function renderLb(container: HTMLElement, highlight?: Entry) {
-  const list = loadLb().sort((a, b) => b.score - a.score).slice(0, 10);
+function savePlayers(list: Player[]) { localStorage.setItem(LB2_KEY, JSON.stringify(list.slice(0, 100))); }
+
+function recordPlay(r: { name: string; score: number; wpm: number; acc: number; streak: number }): Player {
+  const players = loadPlayers();
+  const k = nkey(r.name);
+  let p = players.find((x) => nkey(x.name) === k);
+  if (!p) { p = { name: r.name, plays: 0, total: 0, best: 0, bestWpm: 0, bestAcc: 0, bestStreak: 0, date: 0 }; players.push(p); }
+  p.name = r.name; // cập nhật cách viết mới nhất
+  p.plays++; p.total += r.score;
+  p.best = Math.max(p.best, r.score);
+  p.bestWpm = Math.max(p.bestWpm, r.wpm);
+  p.bestAcc = Math.max(p.bestAcc, r.acc);
+  p.bestStreak = Math.max(p.bestStreak, r.streak);
+  p.date = Date.now();
+  savePlayers(players);
+  return p;
+}
+
+function sortVal(p: Player, m: LbMode) { return m === "total" ? p.total : m === "best" ? p.best : p.bestAcc; }
+function renderLb(container: HTMLElement, mode: LbMode, highlight?: string) {
+  const list = loadPlayers().slice().sort((a, b) => sortVal(b, mode) - sortVal(a, mode) || b.total - a.total).slice(0, 10);
   if (!list.length) { container.innerHTML = `<div class="empty">Chưa có ai trên bảng. Hãy là người đầu tiên! ✨</div>`; return; }
-  const rows = list.map((e, i) => {
-    const me = highlight && e.date === highlight.date && e.name === highlight.name ? ` class="me"` : "";
+  const hl = highlight ? nkey(highlight) : "";
+  const hcol = (m: LbMode) => (mode === m ? " hi" : "");
+  const rows = list.map((p, i) => {
+    const me = hl && nkey(p.name) === hl ? ` class="me"` : "";
     const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}`;
-    return `<tr${me}><td class="rank">${medal}</td><td>${escapeHtml(e.name)}</td><td class="num">${e.score}</td><td class="num">${e.wpm}</td><td class="num">${e.acc}%</td><td>C${e.level}</td></tr>`;
+    return `<tr${me}><td class="rank">${medal}</td><td>${escapeHtml(p.name)}</td>`
+      + `<td class="num${hcol("total")}">${p.total}</td>`
+      + `<td class="num${hcol("best")}">${p.best}</td>`
+      + `<td class="num${hcol("acc")}">${p.bestAcc}%</td>`
+      + `<td class="num">${p.bestWpm}</td><td class="num">${p.plays}</td></tr>`;
   }).join("");
-  container.innerHTML = `<table class="lb"><thead><tr><th class="rank">#</th><th>Tên</th><th class="num">Điểm</th><th class="num">WPM</th><th class="num">CX</th><th>Cấp</th></tr></thead><tbody>${rows}</tbody></table>`;
+  container.innerHTML = `<table class="lb"><thead><tr><th class="rank">#</th><th>Tên</th>`
+    + `<th class="num${hcol("total")}">Tổng</th><th class="num${hcol("best")}">Kỷ lục</th>`
+    + `<th class="num${hcol("acc")}">CX</th><th class="num">WPM</th><th class="num">Lượt</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 function escapeHtml(s: string) { return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!)); }
 
@@ -267,7 +320,7 @@ interface Run {
 }
 let run: Run | null = null;
 let host: HostConnection | null = null;
-let pendingResult: { score: number; wpm: number; acc: number; level: number } | null = null;
+let pendingResult: { score: number; wpm: number; acc: number; level: number; streak: number } | null = null;
 
 function multiplier(combo: number) { return Math.min(1 + Math.floor(combo / 5) * 0.25, 4); }
 
@@ -402,14 +455,14 @@ function endRun() {
   ($("nameInput") as HTMLInputElement).value = localStorage.getItem(NAME_KEY) || host?.user.displayName || "";
   ($("saveScore") as HTMLButtonElement).disabled = false;
   ($("saveScore") as HTMLButtonElement).textContent = "Lưu điểm";
-  renderLb($("overLb"));
+  renderLb($("overLb"), "total");
   show("over");
   confetti();
 
   host?.reportResult({ gameId: "typing-basic", score: run.score, maxScore: Math.max(run.score, 1), durationMs: ROUND_SECONDS * 1000 });
   host?.fireflyEvent({ kind: run.bestCombo >= 15 ? "perfect" : "study", amount: run.bestCombo >= 15 ? 0.4 : 0.2 });
 
-  pendingResult = { score: run.score, wpm, acc, level: run.level.id };
+  pendingResult = { score: run.score, wpm, acc, level: run.level.id, streak: run.bestCombo };
 }
 
 // ---------- Sự kiện UI ----------
@@ -430,21 +483,28 @@ function wireEvents() {
   $("typebox").addEventListener("paste", (e) => e.preventDefault());
 
   $("quitBtn").addEventListener("click", endRun);
-  $("toLeaderboard").addEventListener("click", () => { renderLb($("lbBody")); show("lb"); });
+  $("toLeaderboard").addEventListener("click", () => { renderLb($("lbBody"), lbMode); show("lb"); });
   $("lbBack").addEventListener("click", () => show("start"));
-  $("lbClear").addEventListener("click", () => { if (confirm("Xoá toàn bộ bảng xếp hạng?")) { saveLb([]); renderLb($("lbBody")); } });
+  $("lbClear").addEventListener("click", () => { if (confirm("Xoá toàn bộ bảng xếp hạng?")) { localStorage.removeItem(LB2_KEY); localStorage.removeItem(LB_KEY); renderLb($("lbBody"), lbMode); } });
   $("againBtn").addEventListener("click", () => run && startRun(run.level));
   $("menuBtn").addEventListener("click", () => show("start"));
+
+  // Tab đổi cách xếp hạng (Tổng điểm / Kỷ lục / Chính xác)
+  $("lbTabs").querySelectorAll<HTMLElement>(".tab").forEach((tab) =>
+    tab.addEventListener("click", () => {
+      lbMode = (tab.dataset.m as LbMode) || "total";
+      $("lbTabs").querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === tab));
+      renderLb($("lbBody"), lbMode);
+    }));
 
   $("saveScore").addEventListener("click", () => {
     if (!pendingResult) return;
     const name = (($("nameInput") as HTMLInputElement).value.trim() || "Bé Đom").slice(0, 14);
     localStorage.setItem(NAME_KEY, name);
-    const entry: Entry = { name, ...pendingResult, date: Date.now() };
-    const list = loadLb(); list.push(entry); saveLb(list.sort((a, b) => b.score - a.score));
+    recordPlay({ name, score: pendingResult.score, wpm: pendingResult.wpm, acc: pendingResult.acc, streak: pendingResult.streak });
     ($("saveScore") as HTMLButtonElement).disabled = true;
     ($("saveScore") as HTMLButtonElement).textContent = "Đã lưu ✓";
-    renderLb($("overLb"), entry);
+    renderLb($("overLb"), "total", name);
     confetti();
   });
 
@@ -474,7 +534,9 @@ async function main() {
   // Cho phép vào thẳng một cấp qua ?lv=N (tiện chia sẻ / mở nhanh).
   const lv = Number(new URLSearchParams(location.search).get("lv"));
   const deep = LEVELS.find((l) => l.id === lv);
+  const wantLb = new URLSearchParams(location.search).get("show") === "lb";
   if (deep) startRun(deep);
+  else if (wantLb) { renderLb($("lbBody"), lbMode); show("lb"); }
   else if (!localStorage.getItem(SEEN_GUIDE_KEY)) show("guide"); // lần đầu → hướng dẫn
   else show("start");
 
