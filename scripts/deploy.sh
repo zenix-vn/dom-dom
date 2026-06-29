@@ -2,69 +2,87 @@
 #
 # Deploy Đồi Đom Đóm (Next.js web + game bundles) lên production: doidomdom.com
 #
-# Mô hình deploy: SERVER tự build từ git.
-#   local:  commit + push lên GitHub
-#   server: git pull → docker compose up -d --build (Dockerfile build cả games rồi web)
+# Mô hình deploy: server KHÔNG dùng git. Source được đồng bộ thẳng từ máy local
+# vào $REMOTE_DIR rồi build bằng Docker ngay trên server.
+#   local:  rsync source → server (giữ nguyên .env của server)
+#   server: docker compose up -d --build  (Dockerfile build cả games rồi web)
 #
 # Cách dùng:
-#   ./scripts/deploy.sh                 # deploy nhánh hiện tại
-#   BRANCH=main ./scripts/deploy.sh     # ép deploy nhánh main
-#   REMOTE_DIR=/root/dom-dom ./scripts/deploy.sh
-#   ./scripts/deploy.sh --yes           # bỏ qua bước hỏi xác nhận
+#   ./scripts/deploy.sh           # đồng bộ + build + restart
+#   ./scripts/deploy.sh --yes     # bỏ qua bước hỏi xác nhận
+#   ./scripts/deploy.sh --dry-run # xem rsync sẽ đẩy gì, không thực thi
 #
 # Yêu cầu:
-#   - SSH tới server đã cấu hình trong ~/.ssh/config (host bên dưới: 42.96.17.167, port 8430).
-#   - Trên server, repo đã được clone sẵn ở $REMOTE_DIR và có file .env chứa
-#     NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY (docker compose đọc lúc build).
+#   - SSH tới server đã cấu hình trong ~/.ssh/config (host: 42.96.17.167, port 8430).
+#   - rsync có sẵn ở local lẫn server.
+#   - File .env trên server (NEXT_PUBLIC_SUPABASE_*, WEB_BIND, WEB_PORT) đã có sẵn —
+#     script KHÔNG đụng tới nó (được loại trong --exclude).
 #
 set -euo pipefail
 
 # ---- Cấu hình (có thể override bằng biến môi trường) ----
 SERVER="${SERVER:-42.96.17.167}"          # = doidomdom.com (root@…:8430 theo ~/.ssh/config)
-REMOTE_DIR="${REMOTE_DIR:-/root/dom-dom}"  # ⚠️ ĐỔI cho đúng đường dẫn repo trên server nếu khác
-BRANCH="${BRANCH:-$(git rev-parse --abbrev-ref HEAD)}"
+REMOTE_DIR="${REMOTE_DIR:-/opt/domdom}"    # thư mục source trên server
+SSH_OPTS="${SSH_OPTS:--o ConnectTimeout=15}"
+
+# Repo root = thư mục cha của scripts/
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO_ROOT"
 
 # ---- Tiện ích log ----
-c() { printf '\033[1;36m%s\033[0m\n' "$*"; }   # cyan
-ok() { printf '\033[1;32m%s\033[0m\n' "$*"; }  # green
-err() { printf '\033[1;31m%s\033[0m\n' "$*" >&2; } # red
+c() { printf '\033[1;36m%s\033[0m\n' "$*"; }
+ok() { printf '\033[1;32m%s\033[0m\n' "$*"; }
+err() { printf '\033[1;31m%s\033[0m\n' "$*" >&2; }
 
-# ---- 0. Phải chạy trong repo, working tree sạch ----
-git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { err "Không ở trong git repo."; exit 1; }
-if ! git diff-index --quiet HEAD -- 2>/dev/null; then
-  err "Working tree còn thay đổi chưa commit — hãy commit trước khi deploy:"
-  git status --short >&2
-  exit 1
-fi
+DRY_RUN=""
+for a in "$@"; do
+  case "$a" in
+    --dry-run) DRY_RUN="--dry-run" ;;
+  esac
+done
 
-c "Deploy nhánh '$BRANCH' → $SERVER:$REMOTE_DIR (doidomdom.com)"
+# Những thứ KHÔNG đồng bộ: artefact build + cấu hình runtime của server.
+RSYNC_EXCLUDES=(
+  --exclude '.git'
+  --exclude '.env'            # GIỮ NGUYÊN .env của server
+  --exclude '.env.*'
+  --exclude 'node_modules'
+  --exclude '.next'
+  --exclude 'dist'            # output build của các game
+  --exclude '.turbo'
+  --exclude '.claude'
+  --exclude '.DS_Store'
+  --exclude 'apps/web/public/games'  # game bundle, Dockerfile build lại
+  --exclude '*.log'
+)
+
+c "Deploy → $SERVER:$REMOTE_DIR (doidomdom.com)"
 
 # ---- 1. Xác nhận (prod là thao tác khó hoàn tác) ----
-if [[ "${1:-}" != "--yes" && "${1:-}" != "-y" ]]; then
+if [[ -z "$DRY_RUN" && "${1:-}" != "--yes" && "${1:-}" != "-y" ]]; then
   read -r -p "Tiếp tục deploy lên PRODUCTION? [y/N] " reply
   [[ "$reply" =~ ^[Yy]$ ]] || { err "Đã huỷ."; exit 1; }
 fi
 
-# ---- 2. Push lên GitHub ----
-c "→ Đẩy code lên GitHub (origin/$BRANCH)…"
-git push origin "$BRANCH"
+# ---- 2. Đồng bộ source ----
+c "→ rsync source lên server${DRY_RUN:+ (DRY RUN)}…"
+rsync -az --human-readable $DRY_RUN \
+  "${RSYNC_EXCLUDES[@]}" \
+  -e "ssh $SSH_OPTS" \
+  ./ "$SERVER:$REMOTE_DIR/"
 
-# ---- 3. Trên server: pull + rebuild + restart ----
-c "→ SSH vào server, pull & rebuild container…"
-REMOTE_CMD="set -euo pipefail
-cd '$REMOTE_DIR' 2>/dev/null || { echo 'LỖI: không thấy thư mục $REMOTE_DIR trên server' >&2; exit 1; }
-[ -f docker-compose.yml ] || { echo 'LỖI: $REMOTE_DIR không chứa docker-compose.yml (sai REMOTE_DIR?)' >&2; exit 1; }
-echo '  · git fetch & reset --hard origin/$BRANCH'
-git fetch --all --prune
-git checkout '$BRANCH'
-git reset --hard 'origin/$BRANCH'
-echo '  · docker compose up -d --build'
+if [[ -n "$DRY_RUN" ]]; then
+  ok "✓ Dry-run xong (chưa build, chưa restart)."
+  exit 0
+fi
+
+# ---- 3. Build + restart trên server ----
+c "→ docker compose up -d --build trên server…"
+ssh $SSH_OPTS "$SERVER" "set -euo pipefail
+cd '$REMOTE_DIR'
 docker compose up -d --build
-echo '  · dọn image cũ'
 docker image prune -f >/dev/null
 docker compose ps"
 
-ssh "$SERVER" "$REMOTE_CMD"
-
-ok "✓ Đã deploy '$BRANCH' lên doidomdom.com"
+ok "✓ Đã deploy lên doidomdom.com"
 c  "Mở https://doidomdom.com (Cmd+Shift+R nếu trình duyệt còn cache)."
