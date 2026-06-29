@@ -18,10 +18,42 @@ interface Level {
   name: string;
   desc: string;
   icon: string;
+  tint: [string, string]; // gradient nền cho ô icon (kiểu app-icon iOS)
   tag: string;
   bank: string[];
   lang: "en" | "vi"; // en: tắt bộ gõ; vi: bật bộ gõ
 }
+
+// ---------- Bộ icon kiểu iOS 26 ----------
+// Glyph nét trắng (kiểu SF Symbols) đặt trên ô gradient bóng kính.
+const stroke = (p: string) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICONS = {
+  // Ngón trỏ chỉ lên (đặt tay lên gờ F & J)
+  finger: stroke(
+    `<path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11"/><path d="M12 11.5V9a1.5 1.5 0 0 1 3 0v2.5"/><path d="M15 11.5v-.5a1.5 1.5 0 0 1 3 0V15a5 5 0 0 1-5 5h-1.5a5 5 0 0 1-3.9-1.9l-2.2-2.8a1.6 1.6 0 0 1 2.4-2.1L9 14"/>`
+  ),
+  // Bàn phím
+  keyboard: stroke(
+    `<rect x="2" y="4" width="20" height="16" rx="2.5"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M8 12h.01"/><path d="M12 12h.01"/><path d="M16 12h.01"/><path d="M7 16h10"/>`
+  ),
+  // Mảnh ghép (jigsaw)
+  puzzle:
+    `<svg viewBox="0 0 24 24" fill="#fff"><path d="M20.5 11H19V7a2 2 0 0 0-2-2h-4V3.5a2.5 2.5 0 0 0-5 0V5H4a2 2 0 0 0-2 2v3.8h1.5a2.2 2.2 0 1 1 0 4.4H2V19a2 2 0 0 0 2 2h3.8v-1.5a2.2 2.2 0 1 1 4.4 0V21H17a2 2 0 0 0 2-2v-4h1.5a2.5 2.5 0 0 0 0-5z"/></svg>`,
+  // Chữ A (mở rộng bàn phím / chữ cái)
+  letterA: stroke(`<path d="M5 19 12 4l7 15"/><path d="M7.6 14h8.8"/>`),
+  // Bong bóng chat (cụm từ & câu)
+  bubble: stroke(
+    `<path d="M21 14.5a2.5 2.5 0 0 1-2.5 2.5H8l-4 4V6.5A2.5 2.5 0 0 1 6.5 4h12A2.5 2.5 0 0 1 21 6.5Z"/><path d="M8 9.5h8"/><path d="M8 13h5"/>`
+  ),
+  // Ngôi sao (cờ Việt Nam)
+  star:
+    `<svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.6l2.74 5.55 6.13.89-4.43 4.32 1.05 6.1L12 16.7l-5.49 2.88 1.05-6.1-4.43-4.32 6.13-.89z"/></svg>`,
+  // Cuộn giấy (câu & tục ngữ)
+  scroll: stroke(
+    `<path d="M8 4h9a2 2 0 0 1 2 2v11"/><path d="M10 8h6"/><path d="M10 12h4"/><path d="M6 4a2 2 0 0 0-2 2v1a1 1 0 0 0 1 1h3"/><path d="M8 4v13a2.5 2.5 0 0 0 2.5 2.5H18a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1h-8.5"/>`
+  ),
+};
 
 // Lộ trình kiểu Typing Master — đi từ rất cơ bản:
 // Cấp 1: chỉ 2 phím trỏ F & J (tập đặt tay).
@@ -63,13 +95,13 @@ const VI_PHRASES = [
 ];
 
 const LEVELS: Level[] = [
-  { id: 1, name: "Phím F & J", desc: "Đặt 2 ngón trỏ vào gờ nổi", icon: "☝️", tag: "Cấp 1", bank: FJ_DRILL, lang: "en" },
-  { id: 2, name: "Hàng cơ sở", desc: "8 phím: a s d f · j k l ;", icon: "⌨️", tag: "Cấp 2", bank: HOME_LETTERS, lang: "en" },
-  { id: 3, name: "Từ cơ bản", desc: "Ghép chữ ở hàng cơ sở", icon: "🧩", tag: "Cấp 3", bank: BASIC_WORDS, lang: "en" },
-  { id: 4, name: "Từ tiếng Anh", desc: "Mở rộng cả bàn phím", icon: "🅰️", tag: "Cấp 4", bank: EN_WORDS, lang: "en" },
-  { id: 5, name: "Câu tiếng Anh", desc: "Cụm từ & câu ngắn", icon: "💬", tag: "Cấp 5", bank: EN_PHRASES, lang: "en" },
-  { id: 6, name: "Từ tiếng Việt", desc: "Có dấu — bật bộ gõ", icon: "🇻🇳", tag: "Cấp 6", bank: VI_WORDS, lang: "vi" },
-  { id: 7, name: "Câu & tục ngữ", desc: "Tiếng Việt nâng cao", icon: "📜", tag: "Cấp 7", bank: VI_PHRASES, lang: "vi" },
+  { id: 1, name: "Phím F & J", desc: "Đặt 2 ngón trỏ vào gờ nổi", icon: ICONS.finger, tint: ["#FFB23E", "#FF7A00"], tag: "Cấp 1", bank: FJ_DRILL, lang: "en" },
+  { id: 2, name: "Hàng cơ sở", desc: "8 phím: a s d f · j k l ;", icon: ICONS.keyboard, tint: ["#5AC8FA", "#0A84FF"], tag: "Cấp 2", bank: HOME_LETTERS, lang: "en" },
+  { id: 3, name: "Từ cơ bản", desc: "Ghép chữ ở hàng cơ sở", icon: ICONS.puzzle, tint: ["#6EE7A8", "#30D158"], tag: "Cấp 3", bank: BASIC_WORDS, lang: "en" },
+  { id: 4, name: "Từ tiếng Anh", desc: "Mở rộng cả bàn phím", icon: ICONS.letterA, tint: ["#FF6B6B", "#FF3B30"], tag: "Cấp 4", bank: EN_WORDS, lang: "en" },
+  { id: 5, name: "Câu tiếng Anh", desc: "Cụm từ & câu ngắn", icon: ICONS.bubble, tint: ["#BF7CFF", "#5E5CE6"], tag: "Cấp 5", bank: EN_PHRASES, lang: "en" },
+  { id: 6, name: "Từ tiếng Việt", desc: "Có dấu — bật bộ gõ", icon: ICONS.star, tint: ["#FF453A", "#D70015"], tag: "Cấp 6", bank: VI_WORDS, lang: "vi" },
+  { id: 7, name: "Câu & tục ngữ", desc: "Tiếng Việt nâng cao", icon: ICONS.scroll, tint: ["#E7C68A", "#C9962F"], tag: "Cấp 7", bank: VI_PHRASES, lang: "vi" },
 ];
 
 const SEEN_GUIDE_KEY = "domdom_typing_seen_guide";
@@ -490,7 +522,7 @@ function endRun() {
 // ---------- Sự kiện UI ----------
 function buildLevelList() {
   $("levelList").innerHTML = LEVELS.map((l) =>
-    `<button class="level" data-id="${l.id}"><span class="ic">${l.icon}</span><span><span class="t">${l.name}</span><br><span class="d">${l.desc}</span></span><span class="lv">${l.tag}</span></button>`
+    `<button class="level" data-id="${l.id}"><span class="ic" style="--g1:${l.tint[0]};--g2:${l.tint[1]}">${l.icon}</span><span><span class="t">${l.name}</span><br><span class="d">${l.desc}</span></span><span class="lv">${l.tag}</span></button>`
   ).join("");
   $("levelList").querySelectorAll<HTMLElement>(".level").forEach((el) =>
     el.addEventListener("click", () => {

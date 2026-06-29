@@ -30,7 +30,7 @@
         overflow: hidden;
       }
       #fireflies { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-      .wrap { position: relative; z-index: 2; min-height: 100dvh; display: grid; place-items: center; padding: 20px; }
+      .wrap { position: relative; z-index: 2; min-height: 100dvh; display: grid; place-items: center; padding: 10px; }
       .panel {
         width: min(860px, 96vw);
         background: var(--card); border: 1px solid var(--line); border-radius: 26px;
@@ -49,7 +49,9 @@
       .levels { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 8px 0 18px; }
       .level { text-align: left; cursor: pointer; border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; background: rgba(255,255,255,.04); transition: .15s; display: flex; gap: 12px; align-items: center; }
       .level:hover { border-color: var(--yellow); background: rgba(255,210,61,.10); transform: translateY(-2px); }
-      .level .ic { font-size: 26px; width: 42px; height: 42px; display: grid; place-items: center; background: rgba(255,255,255,.06); border-radius: 12px; }
+      .level .ic { position: relative; width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 12px; overflow: hidden; background: linear-gradient(160deg, var(--g1, #5AC8FA), var(--g2, #0A84FF)); box-shadow: inset 0 1px 1px rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,0,.22), 0 4px 10px rgba(0,0,0,.28); }
+      .level .ic::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0) 55%); pointer-events: none; }
+      .level .ic svg { position: relative; width: 25px; height: 25px; filter: drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
       .level .t { font-weight: 700; }
       .level .d { font-size: 12.5px; color: var(--muted); }
       .level .lv { margin-left: auto; font-size: 12px; color: var(--yellow); font-weight: 700; white-space: nowrap; }
@@ -58,15 +60,15 @@
 
       /* Màn chơi: bỏ thẻ nền, để các thành phần nổi trực tiếp trên bầu trời */
       #screen-game { background: transparent; border: none; box-shadow: none; backdrop-filter: none; width: min(1060px, 97vw); padding: 4px 8px; }
-      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 16px; }
-      .stat { position: relative; display: flex; align-items: center; gap: 13px; border-radius: 22px; padding: 13px 20px; color: #fff; overflow: hidden;
-        box-shadow: inset 0 2px 2px rgba(255,255,255,.5), inset 0 -4px 8px rgba(0,0,0,.22), 0 8px 0 rgba(0,0,0,.16), 0 14px 26px rgba(0,0,0,.3); }
-      .stat::before { content: ""; position: absolute; inset: 3px 3px 50% 3px; border-radius: 18px 18px 30px 30px; background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events: none; }
-      .stat .ic { position: relative; font-size: 28px; width: 54px; height: 54px; flex: 0 0 54px; display: grid; place-items: center; border-radius: 16px; background: rgba(0,0,0,.18); box-shadow: inset 0 2px 4px rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.3); }
+      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
+      .stat { position: relative; display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 8px 14px; color: #fff; overflow: hidden;
+        box-shadow: inset 0 2px 2px rgba(255,255,255,.5), inset 0 -4px 8px rgba(0,0,0,.22), 0 5px 0 rgba(0,0,0,.16), 0 10px 18px rgba(0,0,0,.3); }
+      .stat::before { content: ""; position: absolute; inset: 3px 3px 50% 3px; border-radius: 14px 14px 26px 26px; background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events: none; }
+      .stat .ic { position: relative; font-size: 22px; width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 13px; background: rgba(0,0,0,.18); box-shadow: inset 0 2px 4px rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.3); }
       .stat .tx { position: relative; text-align: left; line-height: 1.04; min-width: 0; }
-      .stat .k { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.92); text-transform: uppercase; letter-spacing: .06em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
-      .stat .v { font-size: 30px; font-weight: 900; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.3); }
-      .stat .v small { font-size: 13px; font-weight: 800; color: rgba(255,255,255,.85); }
+      .stat .k { font-size: 11px; font-weight: 800; color: rgba(255,255,255,.92); text-transform: uppercase; letter-spacing: .05em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+      .stat .v { font-size: 23px; font-weight: 900; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.3); }
+      .stat .v small { font-size: 12px; font-weight: 800; color: rgba(255,255,255,.85); }
       .stat--score { background: linear-gradient(180deg,#a987ff,#7b4fe8); }
       .stat--streak { background: linear-gradient(180deg,#ff8a6a,#ef4a4a); }
       .stat--wpm { background: linear-gradient(180deg,#6ce29a,#2fb85f); }

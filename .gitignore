@@ -37,3 +37,6 @@ npm-debug.log*
 **/xcuserdata/
 *.xcuserstate
 /.env
+
+# Claude Code local config
+.claude/
