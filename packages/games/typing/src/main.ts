@@ -236,22 +236,43 @@ const KEY_INFO: Record<string, [("l" | "r"), Finger]> = {
   space: ["l", "t"],
 };
 
-// Vẽ hai bàn tay (4 ngón + ngón cái) bằng SVG; mỗi ngón có id fg-<l|r><finger>.
+// Vẽ hai bàn tay "thật" bằng SVG. Da màu thịt; mỗi ngón thon có móng tô màu
+// theo nhóm ngón. Ngón cần gõ (id fg-<l|r><finger>) sẽ sáng lên đúng màu.
 function buildHands() {
-  const fingers: { f: Finger; x: number; y: number }[] = [
-    { f: "p", x: 0, y: 36 }, { f: "r", x: 33, y: 12 }, { f: "m", x: 66, y: 2 }, { f: "i", x: 99, y: 18 },
+  // Thứ tự trái→phải của bàn tay trái: út, áp út, giữa, trỏ (ngón cái ở mép phải).
+  const F: { f: Finger; cx: number; top: number; w: number; rot: number }[] = [
+    { f: "p", cx: 78, top: 86, w: 30, rot: -10 },
+    { f: "r", cx: 116, top: 46, w: 34, rot: -3 },
+    { f: "m", cx: 156, top: 30, w: 36, rot: 3 },
+    { f: "i", cx: 194, top: 52, w: 34, rot: 10 },
   ];
-  const W = 26, BOTTOM = 150;
+  const BASE = 250;
+  const finger = (side: "l" | "r", fg: { f: Finger; cx: number; top: number; w: number; rot: number }) => {
+    const x = fg.cx - fg.w / 2, h = BASE - fg.top;
+    return `<g transform="rotate(${fg.rot} ${fg.cx} ${BASE})">
+      <rect id="fg-${side}${fg.f}" class="finger" style="--fc:${FCOLOR[fg.f]}" x="${x}" y="${fg.top}" width="${fg.w}" height="${h}" rx="${fg.w / 2}"/>
+      <ellipse class="nail" cx="${fg.cx}" cy="${fg.top + 16}" rx="${fg.w * 0.3}" ry="11" fill="${FCOLOR[fg.f]}"/>
+      <rect class="sheen" x="${x + 4}" y="${fg.top + 8}" width="${fg.w * 0.3}" height="${h - 30}" rx="${fg.w * 0.15}"/>
+      <rect class="crease" x="${x + 4}" y="${fg.top + h * 0.52}" width="${fg.w - 8}" height="3.5" rx="1.8"/>
+      <rect class="crease" x="${x + 5}" y="${fg.top + h * 0.74}" width="${fg.w - 10}" height="3" rx="1.5"/>
+    </g>`;
+  };
   const hand = (side: "l" | "r") => {
-    let s = `<rect class="palm" x="-8" y="118" width="150" height="48" rx="24"/>`;
-    for (const fg of fingers)
-      s += `<rect id="fg-${side}${fg.f}" class="finger" x="${fg.x}" y="${fg.y}" width="${W}" height="${BOTTOM - fg.y}" rx="13" fill="${FCOLOR[fg.f]}"/>`;
-    s += `<rect id="fg-${side}t" class="finger" x="120" y="124" width="58" height="24" rx="12" fill="${FCOLOR.t}" transform="rotate(16 120 136)"/>`;
+    let s = `<ellipse cx="140" cy="316" rx="118" ry="18" fill="rgba(0,0,0,.20)"/>`; // bóng đổ
+    s += `<ellipse class="thenar" cx="206" cy="262" rx="34" ry="42"/>`;              // gò ngón cái
+    s += `<path class="palm" d="M58,252 Q50,322 116,324 L188,322 Q244,314 228,254 Q212,228 150,228 Q84,228 58,252 Z"/>`;
+    for (const fg of F) s += finger(side, fg);
+    // Ngón cái: nghiêng xuống-phải (phía trong), thu ngắn để không chéo sang tay kia
+    s += `<g transform="rotate(48 200 254)">
+      <rect id="fg-${side}t" class="finger" style="--fc:${FCOLOR.t}" x="184" y="240" width="36" height="80" rx="18"/>
+      <ellipse class="nail" cx="202" cy="255" rx="11" ry="9" fill="${FCOLOR.t}"/>
+      <rect class="sheen" x="188" y="250" width="11" height="52" rx="6"/>
+    </g>`;
     return s;
   };
   $("hands").innerHTML =
-    `<g transform="translate(40,8)">${hand("l")}</g>` +
-    `<g transform="translate(440,8) scale(-1,1)">${hand("r")}</g>`;
+    `<g transform="translate(4,2)">${hand("l")}</g>` +
+    `<g transform="translate(556,2) scale(-1,1)">${hand("r")}</g>`;
 }
 
 function highlightFinger(key: string) {
