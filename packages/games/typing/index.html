@@ -114,7 +114,8 @@
       #hands .nail { display: none; }
       #hands .sheen { fill: rgba(255,255,255,.34); stroke: none; pointer-events: none; }
       #hands .crease { fill: rgba(0,0,0,.08); stroke: none; pointer-events: none; }
-      #hands .finger.lit { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 0 14px rgba(255,221,90,.95)) brightness(1.12); }
+      #hands .finger.lit { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 0 14px rgba(255,221,90,.95)) brightness(1.12); transform-box: fill-box; animation: press .7s ease-in-out infinite; }
+      @keyframes press { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
 
       #keyboard { margin: 8px auto 0; display: flex; flex-direction: column; gap: 6px; align-items: center; user-select: none;
         background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 22px; padding: 14px; width: fit-content; max-width: 100%; }
