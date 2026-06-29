@@ -259,6 +259,7 @@ function buildHands() {
   };
   const hand = (side: "l" | "r") => {
     let s = `<ellipse cx="140" cy="316" rx="118" ry="18" fill="rgba(0,0,0,.20)"/>`; // bóng đổ
+    s += `<ellipse class="cuff" cx="143" cy="322" rx="112" ry="26"/>`;               // cổ tay găng
     s += `<ellipse class="thenar" cx="206" cy="262" rx="34" ry="42"/>`;              // gò ngón cái
     s += `<path class="palm" d="M58,252 Q50,322 116,324 L188,322 Q244,314 228,254 Q212,228 150,228 Q84,228 58,252 Z"/>`;
     for (const fg of F) s += finger(side, fg);
