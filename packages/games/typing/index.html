@@ -89,6 +89,29 @@
       table.lb .rank { width: 34px; color: var(--muted); }
       .empty { color: var(--muted); text-align: center; padding: 18px; }
 
+      /* Bàn phím ảo hướng dẫn ngón tay (kiểu Typing Master) */
+      #keyboard { margin: 16px auto 0; display: flex; flex-direction: column; gap: 6px; align-items: center; user-select: none; }
+      .krow { display: flex; gap: 6px; }
+      .key {
+        min-width: 38px; height: 40px; padding: 0 8px; display: grid; place-items: center;
+        border-radius: 8px; font-size: 13px; font-weight: 700; color: #0e1530;
+        background: #c3cdea; border-bottom: 3px solid rgba(0,0,0,.28); text-transform: uppercase;
+        transition: transform .06s, box-shadow .12s, background .1s;
+      }
+      .key.space { min-width: 240px; }
+      .key.wide { min-width: 58px; font-size: 11px; opacity: .6; }
+      .f-pink { background: #f3a6c4; } .f-amber { background: #f6c66a; }
+      .f-green { background: #86d99a; } .f-blue { background: #8fbcff; } .f-grey { background: #b6c0dc; }
+      .key.home { box-shadow: inset 0 0 0 2px rgba(0,0,0,.4); }
+      .key.home::after { content: ""; position: relative; }
+      .key.next {
+        color: #2a1c00; background: #ffe06a !important; transform: translateY(-3px) scale(1.08);
+        outline: 3px solid #fff; animation: keypulse .8s infinite;
+      }
+      @keyframes keypulse { 0%,100% { box-shadow: 0 0 14px 3px rgba(255,221,90,.7); } 50% { box-shadow: 0 0 24px 8px rgba(255,221,90,1); } }
+      .legend { display: flex; gap: 16px; justify-content: center; margin-top: 12px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+      .legend span i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
       .hide { display: none !important; }
       .title { font-size: 20px; font-weight: 800; margin: 4px 0 10px; }
       .desktop-note { text-align:center; color: var(--muted); font-size: 13px; margin-top: 14px; }
@@ -118,7 +141,15 @@
         <div class="prompt" id="prompt"></div>
         <input class="typebox" id="typebox" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Gõ vào đây…" />
         <div class="combo" id="comboMsg"></div>
-        <div class="row" style="margin-top:8px"><button class="btn btn--ghost" id="quitBtn">⏹ Dừng</button></div>
+        <div id="keyboard"></div>
+        <div class="legend">
+          <span><i style="background:#f3a6c4"></i>Ngón út</span>
+          <span><i style="background:#f6c66a"></i>Ngón áp út</span>
+          <span><i style="background:#86d99a"></i>Ngón giữa</span>
+          <span><i style="background:#8fbcff"></i>Ngón trỏ</span>
+          <span><i style="background:#b6c0dc"></i>Ngón cái</span>
+        </div>
+        <div class="row" style="margin-top:14px"><button class="btn btn--ghost" id="quitBtn">⏹ Dừng</button></div>
       </section>
 
       <section class="panel hide" id="screen-over">

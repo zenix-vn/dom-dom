@@ -22,8 +22,13 @@ interface Level {
   bank: string[];
 }
 
-const LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
-const HOME_ROW = ["as", "df", "jk", "fj", "dk", "sl", "gh", "ad", "kl", "ja"];
+// Cấp 1 theo lối Typing Master: bắt đầu từ hàng phím cơ sở (home row) f j,
+// rồi ghép dần các phím a s d f g h j k l ;
+const HOME_DRILL = [
+  "fff", "jjj", "ddd", "kkk", "sss", "lll", "fj", "jf", "dk", "kd", "sl", "ls",
+  "fjdk", "dksl", "asdf", "jkl;", "ffjj", "ddkk", "as df", "jk l;",
+  "dad", "sad", "ask", "lad", "fall", "flask", "salad", "glad", "hall", "gas",
+];
 
 const EN_WORDS = [
   "cat", "dog", "sun", "moon", "star", "book", "tree", "fish", "bird", "milk",
@@ -57,7 +62,7 @@ const VI_PHRASES = [
 ];
 
 const LEVELS: Level[] = [
-  { id: 1, name: "Chữ cái & hàng phím", desc: "Làm quen từng phím", icon: "🔤", tag: "Cấp 1", bank: [...LETTERS, ...HOME_ROW] },
+  { id: 1, name: "Hàng phím cơ sở", desc: "Tập 10 ngón từ home row", icon: "🔤", tag: "Cấp 1", bank: HOME_DRILL },
   { id: 2, name: "Từ tiếng Anh", desc: "Các từ ngắn quen thuộc", icon: "🅰️", tag: "Cấp 2", bank: EN_WORDS },
   { id: 3, name: "Câu tiếng Anh", desc: "Cụm từ & câu ngắn", icon: "💬", tag: "Cấp 3", bank: EN_PHRASES },
   { id: 4, name: "Từ tiếng Việt", desc: "Có dấu — dùng bộ gõ", icon: "🇻🇳", tag: "Cấp 4", bank: VI_WORDS },
@@ -149,6 +154,51 @@ function confetti() {
   })();
 }
 
+// ---------- Bàn phím ảo + hướng dẫn ngón tay ----------
+// f = nhóm ngón (màu): p=út, r=áp út, m=giữa, i=trỏ, t=cái. Hai bàn tay dùng chung màu.
+type Finger = "p" | "r" | "m" | "i" | "t";
+const FCLASS: Record<Finger, string> = { p: "f-pink", r: "f-amber", m: "f-green", i: "f-blue", t: "f-grey" };
+interface Key { k: string; label?: string; f: Finger; wide?: boolean; home?: boolean; }
+const KB_ROWS: Key[][] = [
+  [["`","p"],["1","p"],["2","r"],["3","m"],["4","i"],["5","i"],["6","i"],["7","i"],["8","m"],["9","r"],["0","p"],["-","p"],["=","p"]].map(([k, f]) => ({ k: k as string, f: f as Finger })),
+  [["q","p"],["w","r"],["e","m"],["r","i"],["t","i"],["y","i"],["u","i"],["i","m"],["o","r"],["p","p"],["[","p"],["]","p"]].map(([k, f]) => ({ k: k as string, f: f as Finger })),
+  [["a","p"],["s","r"],["d","m"],["f","i"],["g","i"],["h","i"],["j","i"],["k","m"],["l","r"],[";","p"],["'","p"]].map(([k, f]) => ({ k: k as string, f: f as Finger, home: k === "f" || k === "j" })),
+  [["z","p"],["x","r"],["c","m"],["v","i"],["b","i"],["n","i"],["m","i"],[",","m"],[".","r"],["/","p"]].map(([k, f]) => ({ k: k as string, f: f as Finger })),
+  [{ k: " ", label: "space", f: "t", wide: true }],
+];
+
+function buildKeyboard() {
+  const root = $("keyboard");
+  root.innerHTML = KB_ROWS.map((row) =>
+    `<div class="krow">${row.map((key) => {
+      const cls = ["key", FCLASS[key.f]];
+      if (key.k === " ") cls.push("space");
+      if (key.home) cls.push("home");
+      return `<div class="${cls.join(" ")}" data-k="${key.k === " " ? "space" : escapeHtml(key.k)}">${key.label ?? escapeHtml(key.k)}</div>`;
+    }).join("")}</div>`
+  ).join("");
+}
+
+/** Quy về phím vật lý: thường hoá, bỏ dấu, đ→d (để gợi ý phím bắt đầu cho Telex). */
+function baseKey(ch: string): string {
+  if (ch === " ") return "space";
+  let c = ch.toLowerCase();
+  if (c === "đ") return "d";
+  c = c.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  return c;
+}
+
+function highlightNextKey() {
+  const root = $("keyboard");
+  root.querySelectorAll(".key.next").forEach((el) => el.classList.remove("next"));
+  if (!run) return;
+  const typed = ($("typebox") as HTMLInputElement).value;
+  const next = run.target[typed.length];
+  if (next === undefined) return;
+  const key = baseKey(next);
+  root.querySelector(`.key[data-k="${key === '"' ? "" : key}"]`)?.classList.add("next");
+}
+
 // ---------- Trạng thái ván chơi ----------
 interface Run {
   level: Level;
@@ -192,6 +242,7 @@ function renderPrompt() {
     html += `<span class="${cls}">${ch}</span>`;
   }
   $("prompt").innerHTML = html;
+  highlightNextKey();
 }
 
 function onType() {
@@ -360,18 +411,20 @@ function wireEvents() {
 async function main() {
   startFireflies();
   buildLevelList();
+  buildKeyboard();
   wireEvents();
   show("start");
-
-  host = await Promise.race([
-    connectToHost("typing-basic"),
-    new Promise<null>((r) => setTimeout(() => r(null), 600)),
-  ]);
 
   // Cho phép vào thẳng một cấp qua ?lv=N (tiện chia sẻ / mở nhanh).
   const lv = Number(new URLSearchParams(location.search).get("lv"));
   const deep = LEVELS.find((l) => l.id === lv);
   if (deep) startRun(deep);
+
+  // Kết nối host nếu được nhúng; chạy độc lập thì bỏ qua sau 600ms.
+  host = await Promise.race([
+    connectToHost("typing-basic"),
+    new Promise<null>((r) => setTimeout(() => r(null), 600)),
+  ]);
 }
 
 void main();
