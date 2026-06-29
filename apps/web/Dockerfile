@@ -22,6 +22,8 @@ ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
     NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
     NEXT_TELEMETRY_DISABLED=1
 
+# Build game bundles into apps/web/public/games (output is gitignored), then the web app.
+RUN pnpm --filter "./packages/games/*" build
 RUN pnpm --filter @domdom/web build
 
 # ---- Runner ----
