@@ -105,6 +105,7 @@ const LEVELS: Level[] = [
 ];
 
 const SEEN_GUIDE_KEY = "domdom_typing_seen_guide";
+const SEEN_TIPS_KEY = "domdom_typing_seen_tips"; // popup mẹo gõ chỉ hiện lần đầu
 function imeText(lang: "en" | "vi") {
   return lang === "vi"
     ? "🇻🇳 BẬT bộ gõ tiếng Việt (Telex/VNI) để gõ dấu."
@@ -479,8 +480,21 @@ function startRun(level: Level) {
   $("timeStar").style.left = "100%";
   newTarget();
   const box = $("typebox") as HTMLInputElement;
-  box.disabled = false; box.value = ""; box.focus();
+  box.value = "";
 
+  // Lần đầu vào chơi: hiện popup mẹo gõ, ĐỒNG HỒ DỪNG cho tới khi bấm "Bắt đầu chơi".
+  if (!localStorage.getItem(SEEN_TIPS_KEY)) {
+    box.disabled = true;
+    $("startModal").classList.remove("hide");
+  } else {
+    box.disabled = false; box.focus();
+    startTimer();
+  }
+}
+
+// Bắt đầu đếm ngược (tách riêng để có thể chờ sau khi đóng popup mẹo gõ).
+function startTimer() {
+  if (!run || run.timer) return;
   run.timer = window.setInterval(() => {
     if (!run) return;
     run.timeLeft--;
@@ -574,7 +588,16 @@ function wireEvents() {
   });
 
   // Popup mẹo gõ lúc bắt đầu.
-  $("startPopBtn").addEventListener("click", () => $("startModal").classList.add("hide"));
+  $("startPopBtn").addEventListener("click", () => {
+    localStorage.setItem(SEEN_TIPS_KEY, "1");
+    $("startModal").classList.add("hide");
+    // Đóng popup → cho gõ và bắt đầu đếm giờ.
+    if (run?.active) {
+      const box = $("typebox") as HTMLInputElement;
+      box.disabled = false; box.focus();
+      startTimer();
+    }
+  });
 
   // Tab đổi cách xếp hạng (Tổng điểm / Kỷ lục / Chính xác)
   $("lbTabs").querySelectorAll<HTMLElement>(".tab").forEach((tab) =>
@@ -613,7 +636,7 @@ async function main() {
   const wantLb = new URLSearchParams(location.search).get("show") === "lb";
   if (deep) startRun(deep);
   else if (wantLb) { renderLb($("lbBody"), lbMode); show("lb"); }
-  else { show("start"); $("startModal").classList.remove("hide"); } // mở game → popup mẹo gõ
+  else show("start"); // popup mẹo gõ hiện ở lần đầu vào chơi (trong startRun), không ở menu
 
   // Kết nối host nếu được nhúng; chạy độc lập thì bỏ qua sau 600ms.
   host = await Promise.race([
