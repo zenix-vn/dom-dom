@@ -60,7 +60,7 @@
 
       /* Màn chơi: bỏ thẻ nền, để các thành phần nổi trực tiếp trên bầu trời */
       #screen-game { background: transparent; border: none; box-shadow: none; backdrop-filter: none; width: min(1060px, 97vw); padding: 4px 8px; }
-      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 10px; }
+      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 67%; margin: 0 auto 4px; }
       /* Mỗi ô HUD dùng nguyên ảnh button thiết kế làm nền; icon đã nằm sẵn bên trái ảnh. */
       .hud .stat { position: relative; display: flex; align-items: center; aspect-ratio: 600 / 260; padding: 0 5% 0 33%; color: #fff;
         background-repeat: no-repeat; background-position: 50%; background-size: 100% 100%; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }
@@ -91,7 +91,7 @@
       .typebox.shake { animation: shake .25s; border-color: var(--red); }
       @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-7px)} 75%{transform:translateX(7px)} }
 
-      .combo { text-align: center; height: 30px; margin-top: 6px; font-weight: 800; color: var(--yellow); }
+      .combo { text-align: center; height: 22px; margin-top: 2px; font-weight: 800; color: var(--yellow); }
       .combo.big { font-size: 22px; text-shadow: 0 0 16px rgba(255,180,40,.8); }
 
       .big-score { text-align: center; font-size: 56px; font-weight: 900; color: var(--yellow); text-shadow: 0 0 24px rgba(255,200,60,.5); }
@@ -114,7 +114,7 @@
 
       /* Bàn phím ảo hướng dẫn ngón tay (kiểu Typing Master) */
       /* Hình hai bàn tay thật — ngón sắp gõ sẽ sáng đúng màu */
-      #hands { display: block; margin: 8px auto 0; width: min(440px, 46%); height: auto; }
+      #hands { display: block; margin: -28px auto -8px; width: min(440px, 46%); height: auto; }
       /* Tay kiểu găng trắng, ngón tô màu như thiết kế */
       #hands .palm, #hands .thenar, #hands .cuff { fill: #fbfcff; stroke: #d7dcef; stroke-width: 2; }
       #hands .finger { fill: var(--fc); stroke: rgba(0,0,0,.10); stroke-width: 1.5; transition: filter .12s, stroke .12s; }
@@ -124,17 +124,17 @@
       #hands .finger.lit { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 0 14px rgba(255,221,90,.95)) brightness(1.12); transform-box: fill-box; animation: press .7s ease-in-out infinite; }
       @keyframes press { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
 
-      #keyboard { margin: 8px auto 0; display: flex; flex-direction: column; gap: 6px; align-items: center; user-select: none;
-        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 22px; padding: 14px; width: fit-content; max-width: 100%; }
-      .krow { display: flex; gap: 6px; }
+      #keyboard { margin: 8px auto 0; display: flex; flex-direction: column; gap: 8px; align-items: center; user-select: none;
+        background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 24px; padding: 16px 20px; width: fit-content; max-width: 100%; }
+      .krow { display: flex; gap: 8px; }
       .key {
-        min-width: 38px; height: 40px; padding: 0 8px; display: grid; place-items: center;
-        border-radius: 8px; font-size: 13px; font-weight: 700; color: #0e1530;
-        background: #c3cdea; border-bottom: 3px solid rgba(0,0,0,.28); text-transform: uppercase;
+        min-width: 52px; height: 50px; padding: 0 10px; display: grid; place-items: center;
+        border-radius: 10px; font-size: 15px; font-weight: 700; color: #0e1530;
+        background: #c3cdea; border-bottom: 4px solid rgba(0,0,0,.28); text-transform: uppercase;
         transition: transform .06s, box-shadow .12s, background .1s;
       }
-      .key.space { min-width: 240px; }
-      .key.wide { min-width: 58px; font-size: 11px; opacity: .6; }
+      .key.space { min-width: 320px; }
+      .key.wide { min-width: 72px; font-size: 12px; opacity: .6; }
       .f-pink { background: #f3a6c4; } .f-amber { background: #f6c66a; }
       .f-green { background: #86d99a; } .f-blue { background: #8fbcff; } .f-grey { background: #b6c0dc; }
       .key.home { box-shadow: inset 0 0 0 2px rgba(0,0,0,.4); }
