@@ -175,6 +175,27 @@
       .mascot--right { right: 1.5%; animation-delay: 1.2s; }
       @keyframes bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
       @media (max-width: 1180px) { .mascot { display: none; } }
+
+      /* ---------- Popup / Modal ---------- */
+      .modal { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 18px; background: rgba(8,10,40,.74); backdrop-filter: blur(5px); animation: mfade .2s ease; }
+      .modal.hide { display: none !important; }
+      @keyframes mfade { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes mpop { from { transform: scale(.82); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+      /* Popup mẹo gõ lúc bắt đầu — dùng ảnh thiết kế */
+      .start-pop { display: flex; flex-direction: column; align-items: center; gap: 18px; max-width: min(760px, 94vw); animation: mpop .28s cubic-bezier(.2,.9,.3,1.3); }
+      .start-pop img { width: 100%; height: auto; filter: drop-shadow(0 22px 54px rgba(0,0,0,.55)); }
+      /* Popup kết thúc cấp */
+      .modal-card { width: min(440px, 94vw); background: linear-gradient(180deg,#2b2d8c,#191a61); border: 1px solid rgba(255,255,255,.16); border-radius: 26px; padding: 24px 26px 22px; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.55); animation: mpop .28s cubic-bezier(.2,.9,.3,1.3); }
+      .modal-card .pop-emoji { font-size: 48px; line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,.4)); }
+      .modal-card h2 { font-size: 22px; font-weight: 800; margin: 8px 0 2px; }
+      .modal-card .big-score { font-size: 48px; margin: 2px 0 4px; }
+      .modal-card .resgrid { margin: 12px 0 14px; }
+      .modal-card .resgrid .stat { background: rgba(255,255,255,.06); border: 1px solid var(--line); border-radius: 14px; padding: 8px 6px; }
+      .modal-card .resgrid .k { font-size: 11px; color: var(--muted); font-weight: 700; }
+      .modal-card .resgrid .v { font-size: 20px; font-weight: 800; }
+      .modal-card .nameRow { margin: 4px 0 16px; }
+      .modal-card .nameRow input { flex: 1; min-width: 0; }
+      .modal-card .row .btn { flex: 1; }
     </style>
   </head>
   <body>
@@ -218,24 +239,6 @@
         <div class="row" style="margin-top:14px"><button class="btn btn--primary" id="quitBtn">⏸ Dừng</button></div>
       </section>
 
-      <section class="panel hide" id="screen-over">
-        <p class="sub" id="overTitle">Kết thúc!</p>
-        <div class="big-score" id="overScore">0</div>
-        <div class="resgrid">
-          <div class="stat"><div class="k">WPM</div><div class="v" id="rWpm">0</div></div>
-          <div class="stat"><div class="k">Chính xác</div><div class="v" id="rAcc">0<small>%</small></div></div>
-          <div class="stat"><div class="k">Streak tốt nhất</div><div class="v" id="rStreak">0</div></div>
-        </div>
-        <div class="nameRow">
-          <input id="nameInput" maxlength="14" placeholder="Tên của bé" />
-          <button class="btn btn--primary" id="saveScore">Lưu điểm</button>
-        </div>
-        <div id="overLb"></div>
-        <div class="row" style="margin-top:16px">
-          <button class="btn btn--primary" id="againBtn">🔁 Chơi lại</button>
-          <button class="btn btn--ghost" id="menuBtn">🏠 Về menu</button>
-        </div>
-      </section>
 
       <section class="panel hide" id="screen-lb">
         <div class="title">🏆 Bảng xếp hạng</div>
@@ -285,6 +288,35 @@
           <button class="btn btn--ghost" id="guideBack">← Menu</button>
         </div>
       </section>
+
+      <!-- POPUP: mẹo gõ khi bắt đầu game -->
+      <div class="modal hide" id="startModal">
+        <div class="start-pop">
+          <img src="/games/typing/tooltip.png" alt="Mẹo gõ thật dễ" onerror="this.style.display='none'" />
+          <button class="btn btn--primary" id="startPopBtn">Bắt đầu chơi! 🚀</button>
+        </div>
+      </div>
+
+      <!-- POPUP: kết thúc cấp -->
+      <div class="modal hide" id="endModal">
+        <div class="modal-card">
+          <div class="pop-emoji" id="endEmoji">🎉</div>
+          <h2 id="endTitle">Hoàn thành!</h2>
+          <div class="big-score" id="overScore">0</div>
+          <div class="resgrid">
+            <div class="stat"><div class="k">WPM</div><div class="v" id="rWpm">0</div></div>
+            <div class="stat"><div class="k">Chính xác</div><div class="v" id="rAcc">0<small>%</small></div></div>
+            <div class="stat"><div class="k">Streak</div><div class="v" id="rStreak">0</div></div>
+          </div>
+          <div class="nameRow">
+            <input id="nameInput" maxlength="14" placeholder="Tên của bé" />
+          </div>
+          <div class="row">
+            <button class="btn btn--primary" id="nextLevelBtn">🚀 Lên cấp</button>
+            <button class="btn btn--ghost" id="finishBtn">🏁 Kết thúc</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="module" src="./src/main.ts"></script>
   </body>

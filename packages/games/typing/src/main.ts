@@ -117,7 +117,7 @@ const NAME_KEY = "domdom_typing_name";
 
 // ---------- Tiện ích DOM ----------
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
-const screens = ["start", "game", "over", "lb", "guide"] as const;
+const screens = ["start", "game", "lb", "guide"] as const;
 function show(name: (typeof screens)[number]) {
   for (const s of screens) $(`screen-${s}`).classList.toggle("hide", s !== name);
 }
@@ -505,18 +505,35 @@ function endRun() {
   $("rWpm").textContent = String(wpm);
   $("rAcc").innerHTML = `${acc}<small>%</small>`;
   $("rStreak").textContent = String(run.bestCombo);
-  $("overTitle").textContent = run.bestCombo >= 15 ? "Tuyệt vời! 🌟" : "Kết thúc!";
+  $("endEmoji").textContent = run.bestCombo >= 15 ? "🌟" : "🎉";
+  $("endTitle").textContent = run.bestCombo >= 15 ? `Tuyệt vời — ${run.level.tag}!` : `Hoàn thành ${run.level.tag}!`;
   ($("nameInput") as HTMLInputElement).value = localStorage.getItem(NAME_KEY) || host?.user.displayName || "";
-  ($("saveScore") as HTMLButtonElement).disabled = false;
-  ($("saveScore") as HTMLButtonElement).textContent = "Lưu điểm";
-  renderLb($("overLb"), "total");
-  show("over");
+
+  // Cấu hình nút "Lên cấp": có cấp cao hơn → mời lên cấp; hết cấp → chơi lại.
+  const next = LEVELS.find((l) => l.id === run!.level.id + 1);
+  const nextBtn = $("nextLevelBtn") as HTMLButtonElement;
+  if (next) { nextBtn.textContent = `🚀 Lên ${next.tag}`; nextBtn.dataset.next = String(next.id); }
+  else { nextBtn.textContent = "🔁 Chơi lại"; delete nextBtn.dataset.next; }
+
+  endSaved = false;
+  pendingResult = { score: run.score, wpm, acc, level: run.level.id, streak: run.bestCombo };
+  $("endModal").classList.remove("hide");
   confetti();
 
   host?.reportResult({ gameId: "typing-basic", score: run.score, maxScore: Math.max(run.score, 1), durationMs: ROUND_SECONDS * 1000 });
   host?.fireflyEvent({ kind: run.bestCombo >= 15 ? "perfect" : "study", amount: run.bestCombo >= 15 ? 0.4 : 0.2 });
+}
 
-  pendingResult = { score: run.score, wpm, acc, level: run.level.id, streak: run.bestCombo };
+// Lưu điểm vào bảng xếp hạng (chỉ một lần cho mỗi lượt chơi).
+let endSaved = false;
+function saveEndScore(): string {
+  const name = ((($("nameInput") as HTMLInputElement).value.trim()) || host?.user.displayName || "Bé Đom").slice(0, 14);
+  if (!endSaved && pendingResult) {
+    localStorage.setItem(NAME_KEY, name);
+    recordPlay({ name, score: pendingResult.score, wpm: pendingResult.wpm, acc: pendingResult.acc, streak: pendingResult.streak });
+    endSaved = true;
+  }
+  return name;
 }
 
 // ---------- Sự kiện UI ----------
@@ -540,8 +557,24 @@ function wireEvents() {
   $("toLeaderboard").addEventListener("click", () => { renderLb($("lbBody"), lbMode); show("lb"); });
   $("lbBack").addEventListener("click", () => show("start"));
   $("lbClear").addEventListener("click", () => { if (confirm("Xoá toàn bộ bảng xếp hạng?")) { localStorage.removeItem(LB2_KEY); localStorage.removeItem(LB_KEY); renderLb($("lbBody"), lbMode); } });
-  $("againBtn").addEventListener("click", () => run && startRun(run.level));
-  $("menuBtn").addEventListener("click", () => show("start"));
+
+  // Popup kết thúc cấp: lên cấp cao hơn (hoặc chơi lại) / kết thúc → bảng xếp hạng.
+  $("nextLevelBtn").addEventListener("click", () => {
+    saveEndScore();
+    $("endModal").classList.add("hide");
+    const nextId = Number(($("nextLevelBtn") as HTMLButtonElement).dataset.next);
+    const next = LEVELS.find((l) => l.id === nextId);
+    startRun(next ?? run!.level);
+  });
+  $("finishBtn").addEventListener("click", () => {
+    const name = saveEndScore();
+    $("endModal").classList.add("hide");
+    renderLb($("lbBody"), lbMode, name);
+    show("lb");
+  });
+
+  // Popup mẹo gõ lúc bắt đầu.
+  $("startPopBtn").addEventListener("click", () => $("startModal").classList.add("hide"));
 
   // Tab đổi cách xếp hạng (Tổng điểm / Kỷ lục / Chính xác)
   $("lbTabs").querySelectorAll<HTMLElement>(".tab").forEach((tab) =>
@@ -550,17 +583,6 @@ function wireEvents() {
       $("lbTabs").querySelectorAll(".tab").forEach((t) => t.classList.toggle("active", t === tab));
       renderLb($("lbBody"), lbMode);
     }));
-
-  $("saveScore").addEventListener("click", () => {
-    if (!pendingResult) return;
-    const name = (($("nameInput") as HTMLInputElement).value.trim() || "Bé Đom").slice(0, 14);
-    localStorage.setItem(NAME_KEY, name);
-    recordPlay({ name, score: pendingResult.score, wpm: pendingResult.wpm, acc: pendingResult.acc, streak: pendingResult.streak });
-    ($("saveScore") as HTMLButtonElement).disabled = true;
-    ($("saveScore") as HTMLButtonElement).textContent = "Đã lưu ✓";
-    renderLb($("overLb"), "total", name);
-    confetti();
-  });
 
   $("muteBtn").addEventListener("click", () => {
     muted = !muted;
@@ -591,8 +613,7 @@ async function main() {
   const wantLb = new URLSearchParams(location.search).get("show") === "lb";
   if (deep) startRun(deep);
   else if (wantLb) { renderLb($("lbBody"), lbMode); show("lb"); }
-  else if (!localStorage.getItem(SEEN_GUIDE_KEY)) show("guide"); // lần đầu → hướng dẫn
-  else show("start");
+  else { show("start"); $("startModal").classList.remove("hide"); } // mở game → popup mẹo gõ
 
   // Kết nối host nếu được nhúng; chạy độc lập thì bỏ qua sau 600ms.
   host = await Promise.race([
