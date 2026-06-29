@@ -271,47 +271,6 @@ const KEY_INFO: Record<string, [("l" | "r"), Finger]> = {
 
 // Vẽ hai bàn tay "thật" bằng SVG. Da màu thịt; mỗi ngón thon có móng tô màu
 // theo nhóm ngón. Ngón cần gõ (id fg-<l|r><finger>) sẽ sáng lên đúng màu.
-function buildHands() {
-  // Bàn tay bé: ngón mũm mĩm, đầu ngón tròn, lòng bàn tay bầu bĩnh.
-  // Thứ tự trái→phải của bàn tay trái: út, áp út, giữa, trỏ (ngón cái ở mép phải).
-  type Fg = { f: Finger; cx: number; top: number; w: number; rot: number };
-  const F: Fg[] = [
-    { f: "p", cx: 84, top: 120, w: 40, rot: -12 },
-    { f: "r", cx: 128, top: 94, w: 46, rot: -3 },
-    { f: "m", cx: 176, top: 84, w: 48, rot: 4 },
-    { f: "i", cx: 222, top: 104, w: 46, rot: 13 },
-  ];
-  const BOTTOM = 202;
-  const finger = (side: "l" | "r", fg: Fg) => {
-    const x = fg.cx - fg.w / 2, h = BOTTOM - fg.top, r = fg.w / 2;
-    return `<g transform="rotate(${fg.rot} ${fg.cx} ${BOTTOM})">
-      <rect id="fg-${side}${fg.f}" class="finger" style="--fc:${FCOLOR[fg.f]}" x="${x}" y="${fg.top}" width="${fg.w}" height="${h}" rx="${r}"/>
-      <ellipse class="tip" cx="${fg.cx - fg.w * 0.13}" cy="${fg.top + r * 0.82}" rx="${fg.w * 0.23}" ry="${r * 0.68}"/>
-      <path class="knuck" d="M${x + 7},${fg.top + h * 0.5} q${r - 7},-6 ${fg.w - 14},0"/>
-    </g>`;
-  };
-  const hand = (side: "l" | "r") => {
-    let s = `<ellipse cx="152" cy="252" rx="122" ry="16" fill="rgba(0,0,0,.16)"/>`;            // bóng đổ mềm
-    s += `<path class="cuff" d="M46,238 Q40,270 100,274 L212,274 Q270,270 262,238 Z"/>`;        // cổ tay áo bo tròn
-    s += `<ellipse class="thenar" cx="220" cy="212" rx="35" ry="42"/>`;                         // gò ngón cái mũm mĩm
-    s += `<path class="palm" d="M52,202 Q42,254 120,256 L200,254 Q262,248 250,200 Q240,166 152,166 Q66,166 52,202 Z"/>`; // lòng bàn tay bầu bĩnh
-    for (const fg of F) s += finger(side, fg);
-    // Ngón cái: ngắn, mập, tròn, nghiêng vào trong
-    s += `<g transform="rotate(46 214 206)">
-      <rect id="fg-${side}t" class="finger" style="--fc:${FCOLOR.t}" x="190" y="184" width="46" height="64" rx="23"/>
-      <ellipse class="tip" cx="207" cy="202" rx="12" ry="14"/>
-    </g>`;
-    return s;
-  };
-  const defs = `<defs>
-    <linearGradient id="palmG" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e9edfb"/>
-    </linearGradient>
-  </defs>`;
-  $("hands").innerHTML = defs +
-    `<g transform="translate(0,2)">${hand("l")}</g>` +
-    `<g transform="translate(560,2) scale(-1,1)">${hand("r")}</g>`;
-}
 
 function highlightFinger(key: string) {
   document.querySelectorAll("#hands .finger.lit").forEach((el) => el.classList.remove("lit"));
@@ -634,7 +593,6 @@ async function main() {
   startFireflies();
   buildLevelList();
   buildKeyboard();
-  buildHands();
   wireEvents();
 
   // Cho phép vào thẳng một cấp qua ?lv=N (tiện chia sẻ / mở nhanh).

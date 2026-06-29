@@ -112,17 +112,8 @@
       .tab.active { background: linear-gradient(180deg,#ffe06a,#fbbf24); color: #5a3d00; border-color: transparent; }
       table.lb th.hi, table.lb td.hi { background: rgba(255,210,61,.13); color: var(--yellow); }
 
-      /* Bàn phím ảo hướng dẫn ngón tay (kiểu Typing Master) */
-      /* Hình hai bàn tay thật — ngón sắp gõ sẽ sáng đúng màu */
-      #hands { display: block; margin: -26px auto -8px; width: min(440px, 46%); height: auto; }
-      /* Tay kiểu găng trắng, ngón tô màu như thiết kế */
-      #hands .palm { fill: url(#palmG); stroke: #dde2f3; stroke-width: 2; }
-      #hands .thenar, #hands .cuff { fill: #f1f4fd; stroke: #dde2f3; stroke-width: 2; }
-      #hands .finger { fill: var(--fc); stroke: rgba(0,0,0,.12); stroke-width: 1.5; transition: filter .12s, stroke .12s; }
-      #hands .tip { fill: rgba(255,255,255,.5); stroke: none; pointer-events: none; }
-      #hands .knuck { fill: none; stroke: rgba(0,0,0,.10); stroke-width: 3; stroke-linecap: round; pointer-events: none; }
-      #hands .finger.lit { stroke: #fff; stroke-width: 3; filter: drop-shadow(0 0 14px rgba(255,221,90,.95)) brightness(1.12); transform-box: fill-box; animation: press .7s ease-in-out infinite; }
-      @keyframes press { 0%,100% { transform: translateY(0); } 50% { transform: translateY(7px); } }
+      /* Hình hai bàn tay (ảnh thiết kế) */
+      #hands { display: block; margin: -24px auto -4px; width: min(300px, 40%); height: auto; filter: drop-shadow(0 10px 18px rgba(0,0,0,.28)); }
 
       #keyboard { margin: 8px auto 0; display: flex; flex-direction: column; gap: 8px; align-items: center; user-select: none;
         background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); border-radius: 24px; padding: 16px 20px; width: fit-content; max-width: 100%; }
@@ -225,7 +216,7 @@
         <div class="ime-hint" id="imeHint"></div>
         <input class="typebox" id="typebox" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Gõ vào đây…" />
         <div class="combo" id="comboMsg"></div>
-        <svg id="hands" viewBox="0 78 560 178" aria-hidden="true"></svg>
+        <img id="hands" src="/games/typing/hands.png" alt="" aria-hidden="true" onerror="this.style.display='none'" />
         <div id="keyboard"></div>
         <div class="legend">
           <span><i style="background:#f3a6c4"></i>Ngón út</span>
