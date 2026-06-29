@@ -15,6 +15,13 @@ const nextConfig = {
     "@domdom/game-sdk",
     "@domdom/supabase-client",
   ],
+  // Cho phép mở game bằng URL thư mục (vd /games/typing) → phục vụ index.html.
+  async rewrites() {
+    return [
+      { source: "/games/:game", destination: "/games/:game/index.html" },
+      { source: "/games/:game/", destination: "/games/:game/index.html" },
+    ];
+  },
 };
 
 export default nextConfig;
