@@ -64,7 +64,8 @@
       .stat { position: relative; display: flex; align-items: center; gap: 10px; border-radius: 16px; padding: 8px 14px; color: #fff; overflow: hidden;
         box-shadow: inset 0 2px 2px rgba(255,255,255,.5), inset 0 -4px 8px rgba(0,0,0,.22), 0 5px 0 rgba(0,0,0,.16), 0 10px 18px rgba(0,0,0,.3); }
       .stat::before { content: ""; position: absolute; inset: 3px 3px 50% 3px; border-radius: 14px 14px 26px 26px; background: linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,0)); pointer-events: none; }
-      .stat .ic { position: relative; font-size: 22px; width: 42px; height: 42px; flex: 0 0 42px; display: grid; place-items: center; border-radius: 13px; background: rgba(0,0,0,.18); box-shadow: inset 0 2px 4px rgba(255,255,255,.25), inset 0 -2px 6px rgba(0,0,0,.3); }
+      .stat .ic { position: relative; width: 46px; height: 46px; flex: 0 0 46px; display: grid; place-items: center; border-radius: 14px; overflow: hidden; }
+      .stat .ic img { width: 100%; height: 100%; object-fit: cover; display: block; }
       .stat .tx { position: relative; text-align: left; line-height: 1.04; min-width: 0; }
       .stat .k { font-size: 11px; font-weight: 800; color: rgba(255,255,255,.92); text-transform: uppercase; letter-spacing: .05em; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
       .stat .v { font-size: 23px; font-weight: 900; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.3); }
@@ -195,10 +196,10 @@
 
       <section class="panel hide" id="screen-game">
         <div class="hud">
-          <div class="stat stat--score"><span class="ic">⭐</span><div class="tx"><div class="k">Điểm</div><div class="v" id="hScore">0</div></div></div>
-          <div class="stat stat--streak"><span class="ic">🔥</span><div class="tx"><div class="k">Streak</div><div class="v" id="hStreak">0<small>×<span id="hMult">1.0</span></small></div></div></div>
-          <div class="stat stat--wpm"><span class="ic">⚡</span><div class="tx"><div class="k">WPM</div><div class="v" id="hWpm">0</div></div></div>
-          <div class="stat stat--time"><span class="ic">⏳</span><div class="tx"><div class="k">Thời gian</div><div class="v" id="hTime">60<small>s</small></div></div></div>
+          <div class="stat stat--score"><span class="ic"><img src="/games/typing/hud-score.png" alt="" /></span><div class="tx"><div class="k">Điểm</div><div class="v" id="hScore">0</div></div></div>
+          <div class="stat stat--streak"><span class="ic"><img src="/games/typing/hud-streak.png" alt="" /></span><div class="tx"><div class="k">Streak</div><div class="v" id="hStreak">0<small>×<span id="hMult">1.0</span></small></div></div></div>
+          <div class="stat stat--wpm"><span class="ic"><img src="/games/typing/hud-wpm.png" alt="" /></span><div class="tx"><div class="k">WPM</div><div class="v" id="hWpm">0</div></div></div>
+          <div class="stat stat--time"><span class="ic"><img src="/games/typing/hud-time.png" alt="" /></span><div class="tx"><div class="k">Thời gian</div><div class="v" id="hTime">60<small>s</small></div></div></div>
         </div>
         <div id="timeBar"><div id="timeFill"></div><div id="timeStar">⭐</div></div>
         <div class="prompt" id="prompt"></div>
