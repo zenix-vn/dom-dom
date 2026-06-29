@@ -36,3 +36,4 @@ npm-debug.log*
 # Xcode / iOS
 **/xcuserdata/
 *.xcuserstate
+/.env

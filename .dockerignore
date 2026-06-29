@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/.turbo
+**/dist
+.git
+.gitignore
+*.log
+
+# Landing design source (not needed inside the image; assets already in apps/web/public)
+/images
+/landing.html
+
+# Local env files (vars are injected via build args / compose)
+**/.env.local

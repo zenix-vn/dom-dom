@@ -1,0 +1,18 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    image: domdom-web
+    container_name: domdom-web
+    ports:
+      # Local default 0.0.0.0:3000; on the shared server set WEB_BIND=127.0.0.1 WEB_PORT=3096.
+      - "${WEB_BIND:-0.0.0.0}:${WEB_PORT:-3000}:3000"
+    environment:
+      # Needed at runtime by the SSR middleware / server components.
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+    restart: unless-stopped

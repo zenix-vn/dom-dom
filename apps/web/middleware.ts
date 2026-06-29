@@ -35,7 +35,8 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
-  const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
+  // Trang landing ("/") là trang công khai cho khách chưa đăng nhập.
+  const isPublic = path === "/" || PUBLIC_PATHS.some((p) => path.startsWith(p));
 
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
@@ -47,6 +48,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Bỏ qua static assets và bundle game (nạp trong iframe).
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|games/).*)"],
+  // Bỏ qua static assets, favicon/icon, ảnh public và bundle game (nạp trong iframe).
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|apple-icon.png|games/|images/).*)",
+  ],
 };
