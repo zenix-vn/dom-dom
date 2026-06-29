@@ -60,7 +60,7 @@
 
       /* Màn chơi: bỏ thẻ nền, để các thành phần nổi trực tiếp trên bầu trời */
       #screen-game { background: transparent; border: none; box-shadow: none; backdrop-filter: none; width: min(1060px, 97vw); padding: 4px 8px; }
-      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 67%; margin: 0 auto 4px; }
+      .hud { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 67%; margin: 0 auto 0; }
       /* Mỗi ô HUD dùng nguyên ảnh button thiết kế làm nền; icon đã nằm sẵn bên trái ảnh. */
       .hud .stat { position: relative; display: flex; align-items: center; aspect-ratio: 600 / 260; padding: 0 5% 0 33%; color: #fff;
         background-repeat: no-repeat; background-position: 50%; background-size: 100% 100%; filter: drop-shadow(0 8px 14px rgba(0,0,0,.32)); }
@@ -72,7 +72,7 @@
       .stat--streak { background-image: url('/games/typing/pill-streak.png'); }
       .stat--wpm { background-image: url('/games/typing/pill-wpm.png'); }
       .stat--time { background-image: url('/games/typing/pill-time.png'); }
-      #timeBar { position: relative; height: 16px; border-radius: 99px; background: rgba(18,18,72,.55); box-shadow: inset 0 2px 4px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.12); margin: 4px 0 18px; }
+      #timeBar { position: relative; height: 16px; border-radius: 99px; background: rgba(18,18,72,.55); box-shadow: inset 0 2px 4px rgba(0,0,0,.45), inset 0 0 0 2px rgba(255,255,255,.12); margin: 16px 0 18px; }
       #timeFill { height: 100%; width: 100%; border-radius: 99px; background: linear-gradient(90deg,#34e07f,#9be84f,#ffd23d,#ff8a3d,#ff5d6c); box-shadow: inset 0 2px 2px rgba(255,255,255,.5); transition: width .3s linear; }
       #timeStar { position: absolute; top: 50%; left: 100%; transform: translate(-50%,-50%); font-size: 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.45)); transition: left .3s linear; pointer-events: none; }
 
