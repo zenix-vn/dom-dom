@@ -108,9 +108,11 @@ const SEEN_GUIDE_KEY = "domdom_typing_seen_guide";
 const SEEN_TIPS_KEY = "domdom_typing_seen_tips"; // popup mẹo gõ chỉ hiện lần đầu
 function imeText(lang: "en" | "vi") {
   return lang === "vi"
-    ? "🇻🇳 BẬT bộ gõ tiếng Việt (Telex/VNI) để gõ dấu."
-    : "⌨️ TẮT bộ gõ tiếng Việt — chỉ gõ chữ cái Latin.";
+    ? "<b>BẬT</b> bộ gõ tiếng Việt (Telex/VNI) để gõ dấu."
+    : "<b>TẮT</b> bộ gõ tiếng Việt — chỉ gõ chữ cái Latin.";
 }
+const IME_STAR =
+  `<svg class="ime-star" viewBox="0 0 24 24"><path d="M12 2.6l2.9 5.9 6.5.95-4.7 4.58 1.1 6.47L12 17.5l-5.8 3.0 1.1-6.47L2.6 9.45l6.5-.95z" fill="#FFD23D" stroke="#E8A100" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
 
 const ROUND_SECONDS = 60;
 const LB_KEY = "domdom_typing_lb_v1";
@@ -456,7 +458,7 @@ function startRun(level: Level) {
   };
   show("game");
   $("comboMsg").textContent = "";
-  $("imeHint").textContent = imeText(level.lang);
+  $("imeHint").innerHTML = `${IME_STAR}<span>${imeText(level.lang)}</span>${IME_STAR}`;
   updateHud();
   $("hTime").innerHTML = `${ROUND_SECONDS}<small>s</small>`;
   $("timeFill").style.width = "100%";

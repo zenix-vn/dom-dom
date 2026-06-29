@@ -162,7 +162,12 @@
       .home-extra b { color: var(--yellow); }
       .guide-note { display: grid; gap: 10px; margin: 4px 0 18px; }
       .gn { background: rgba(255,255,255,.05); border: 1px solid var(--line); border-left: 3px solid var(--yellow); border-radius: 10px; padding: 11px 14px; font-size: 13.5px; line-height: 1.55; }
-      .ime-hint { text-align: center; font-size: 12.5px; color: #d8e6ff; background: rgba(120,150,255,.14); border: 1px solid var(--line); border-radius: 10px; padding: 6px 12px; margin: 8px auto 0; max-width: 560px; }
+      .ime-hint { display: flex; align-items: center; justify-content: center; gap: 12px; width: fit-content; max-width: 92%; margin: 10px auto 0;
+        font-family: "Baloo 2", system-ui, sans-serif; font-size: 17px; font-weight: 600; color: #fff; letter-spacing: .2px;
+        background: linear-gradient(180deg, #4254e0, #2b2fa6); border: 2px solid rgba(255,255,255,.28); border-radius: 999px; padding: 8px 22px;
+        box-shadow: 0 8px 18px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.3); }
+      .ime-hint b { font-weight: 800; color: #ffe06a; }
+      .ime-hint .ime-star { width: 22px; height: 22px; flex: 0 0 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
 
       .hide { display: none !important; }
       .title { font-size: 20px; font-weight: 800; margin: 4px 0 10px; }
